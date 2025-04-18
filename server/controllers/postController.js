@@ -5,6 +5,9 @@ const { cloudinary } = require('../utils/cloudinary');
 exports.createPost = async (req, res) => {
   try {
     let imageUrl = null;
+    console.log("req.body = ", req.body);
+    console.log("req.file = ", req.file);
+
 
     if (req.file) {
       console.log('File uploaded:', req.file);
@@ -24,6 +27,9 @@ exports.createPost = async (req, res) => {
       imageUrl = req.body.image;  // Base64 image URL
     }
 
+    console.log("imageURL  ========================== ",imageUrl);
+
+
     const newPost = await Post.create({
       author: req.user._id,
       ...req.body,
@@ -33,31 +39,6 @@ exports.createPost = async (req, res) => {
     res.status(201).json(newPost);  // Respond with the created post
   } catch (err) {
     console.error('Error creating post:', err);
-    res.status(500).json({ message: 'Failed to create post', error: err.message });
-  }
-};
-
-exports.createPost = async (req, res) => {
-  try {
-    let imageUrl = null;
-
-    if (req.file) {
-      console.log('File uploaded:', req.file);  
-      imageUrl = req.file.url; 
-    }
-    else if (req.body.image) {
-      imageUrl = req.body.image;  
-    }
-
-    const newPost = await Post.create({
-      author: req.user._id,
-      ...req.body,
-      image: imageUrl,  
-    });
-
-    res.status(201).json(newPost);  
-  } catch (err) {
-    console.error('Error creating post:', err);  
     res.status(500).json({ message: 'Failed to create post', error: err.message });
   }
 };
