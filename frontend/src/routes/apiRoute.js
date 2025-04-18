@@ -4,10 +4,11 @@ export const API_ROUTES = {
   REGISTER: `${API_BASE_URL}/api/auth/register`,
   LOGIN: `${API_BASE_URL}/api/auth/login`,
 
-  GET_ALL_USERS: `${API_BASE_URL}/api/users/`,
-  GET_CURRENT_USER: `${API_BASE_URL}/api/users/me`,
+  GET_ALL_USERS: (id) => `${API_BASE_URL}/api/users/`,
+  GET_CURRENT_USER: (id) => `${API_BASE_URL}/api/users/me`,
 
-  COMMUNITY_POST: `${API_BASE_URL}/api/posts/`,
-  
-  
+  MAKE_COMMUNITY_POST: (id) => `${API_BASE_URL}/api/posts/`,
+  GET_ALL_POSTS: (id) => `${API_BASE_URL}/api/posts/`,
+  LIKE_POST: (post_id) => `${API_BASE_URL}/api/posts/like/${post_id}`,
+  COMMENT_ON_POST: (post_id) => `${API_BASE_URL}/api/posts/comment/${post_id}`,
 };
