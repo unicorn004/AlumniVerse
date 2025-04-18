@@ -3,7 +3,7 @@ const Post = require('../models/Post');
 exports.createPost = async (req, res) => {
   try {
     const newPost = await Post.create({
-      author: req.user.id,
+      author: req.user._id,
       ...req.body,
       image: req.file?.path || null
     });
