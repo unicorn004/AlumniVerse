@@ -43,6 +43,7 @@ exports.getAllPosts = async (req, res) => {
         company: post.author.company
       }
     }));
+    console.log(formattedPosts);
 
     res.json(formattedPosts);
   } catch (err) {
