@@ -1,5 +1,5 @@
 const User = require('../models/User');
-
+const { cloudinary } = require('../utils/cloudinary');
 // GET /users?branch=IT&graduationYear=2020&location=Delhi&page=1&limit=10
 exports.getAllUsers = async (req, res) => {
   try {
@@ -76,21 +76,28 @@ exports.uploadProfileImage = async (req, res) => {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const user = await User.findById(req.user.id);
+    // Upload the image to Cloudinary
+    const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'alumniverse',  // Cloudinary folder
+      public_id: `${req.user.id}-profile`,  // Using user ID for a unique file name
+      resource_type: 'image',  // Ensures it's treated as an image
+    });
 
+    // Find the user and save the Cloudinary image URL
+    const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    user.profileImage = req.file.url;
+    user.profileImage = cloudinaryResult.secure_url;  // Save Cloudinary image URL
 
     await user.save();
 
     res.json({
       message: 'Profile image uploaded successfully',
-      url: req.file.url 
+      url: cloudinaryResult.secure_url  // Respond with the image URL
     });
-    
+
   } catch (err) {
     console.error('Error uploading profile image:', err);
     res.status(500).json({
