@@ -49,48 +49,83 @@ exports.getUserById = async (req, res) => {
 // PUT /users/:id
 exports.updateUserProfile = async (req, res) => {
   try {
-    console.log("hello");
-    console.log(req.user);
-    
-    const userId = req.user.id;
-    console.log(userId);
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      req.body,
-      { new: true }
-    ).select('-passwordHash'); // Exclude password hash from response
+    const { id } = req.params;
+    const userToUpdate = await User.findById(id);
+    if (!userToUpdate) return res.status(404).json({ message: 'User not found' });
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
+    const currentUser = req.user;
+    const isSelf = currentUser.id === id;
+    const sameRole = currentUser.role === userToUpdate.role;
+
+    if (!isSelf && currentUser.role !== 'admin' && !sameRole) {
+      return res.status(403).json({ message: 'Not authorized to update this profile' });
     }
 
+    const updates = req.body;
+    const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true }).select('-passwordHash');
     res.json(updatedUser);
+
   } catch (err) {
     res.status(500).json({ message: 'Profile update failed', error: err.message });
   }
 };
 
-
-// PUT /users/upload/profile-image
 exports.uploadProfileImage = async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
     const user = await User.findById(req.user.id);
-    user.profileImage = req.file.path;
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.profileImage = req.file.url;
+
     await user.save();
-    res.json({ message: 'Profile image uploaded', url: req.file.path });
+
+    res.json({
+      message: 'Profile image uploaded successfully',
+      url: req.file.url 
+    });
+    
   } catch (err) {
-    res.status(500).json({ message: 'Image upload failed', error: err.message });
+    console.error('Error uploading profile image:', err);
+    res.status(500).json({
+      message: 'Image upload failed',
+      error: err.message
+    });
   }
 };
 
 // PUT /users/upload/resume
 exports.uploadResume = async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
     const user = await User.findById(req.user.id);
-    user.resume = req.file.path;
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.resume = req.file.url;
     await user.save();
-    res.json({ message: 'Resume uploaded', url: req.file.path });
+
+    res.json({
+      message: 'Resume uploaded successfully',
+      url: req.file.url
+    });
+
   } catch (err) {
-    res.status(500).json({ message: 'Resume upload failed', error: err.message });
+    console.error('Error uploading resume:', err);
+    res.status(500).json({
+      message: 'Resume upload failed',
+      error: err.message
+    });
   }
 };
