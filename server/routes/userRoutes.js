@@ -1,15 +1,19 @@
 const express = require('express');
-const { getAllUsers, getUserById, updateUserProfile } = require('../controllers/userController');
+const {
+  getAllUsers,
+  getMyProfile,
+  getUserById,
+  updateUserProfile
+} = require('../controllers/userController');
+
 const { protect } = require('../middleware/authMiddleware');
-const User = require('../models/User');
+
 const router = express.Router();
 
-router.get('/', protect, getAllUsers);             // Alumni directory + filter/search
-router.get('/:id', protect, getUserById);          // Profile page
-router.put('/:id', protect, updateUserProfile);    // Edit profile
-router.get('/me', protect, async (req, res) => {
-    const user = await User.findById(req.user.id).select('-passwordHash');
-    res.json(user);
-  });
+//  Authenticated routes
+router.get('/', protect, getAllUsers);            // Search + directory
+router.get('/me', protect, getMyProfile);         // Logged-in user's profile
+router.get('/:id', protect, getUserById);         // Any user's public profile
+router.put('/:id', protect, updateUserProfile); 
 
 module.exports = router;
