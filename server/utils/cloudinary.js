@@ -11,9 +11,9 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => ({
-    folder: 'alumniverse',
-    public_id: `${file.fieldname}-${Date.now()}`,
-    resource_type: file.mimetype.startsWith('image/') ? 'image' : 'raw',
+    folder: 'alumniverse',  
+    public_id: `${file.fieldname}-${Date.now()}`, 
+    resource_type: file.mimetype.startsWith('image/') ? 'image' : 'raw', 
   })
 });
 

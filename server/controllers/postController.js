@@ -2,14 +2,25 @@ const Post = require('../models/Post');
 
 exports.createPost = async (req, res) => {
   try {
+    let imageUrl = null;
+
+    if (req.file) {
+      console.log('File uploaded:', req.file);  
+      imageUrl = req.file.url; 
+    }
+    else if (req.body.image) {
+      imageUrl = req.body.image;  
+    }
+
     const newPost = await Post.create({
       author: req.user._id,
       ...req.body,
-      image: req.file?.path || null
+      image: imageUrl,  
     });
 
-    res.status(201).json(newPost);
+    res.status(201).json(newPost);  
   } catch (err) {
+    console.error('Error creating post:', err);  
     res.status(500).json({ message: 'Failed to create post', error: err.message });
   }
 };
