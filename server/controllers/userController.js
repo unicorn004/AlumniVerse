@@ -49,26 +49,27 @@ exports.getUserById = async (req, res) => {
 // PUT /users/:id
 exports.updateUserProfile = async (req, res) => {
   try {
-    const { id } = req.params;
-    const userToUpdate = await User.findById(id);
-    if (!userToUpdate) return res.status(404).json({ message: 'User not found' });
+    console.log("hello");
+    console.log(req.user);
+    
+    const userId = req.user.id;
+    console.log(userId);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      req.body,
+      { new: true }
+    ).select('-passwordHash'); // Exclude password hash from response
 
-    const currentUser = req.user;
-    const isSelf = currentUser.id === id;
-    const sameRole = currentUser.role === userToUpdate.role;
-
-    if (!isSelf && currentUser.role !== 'admin' && !sameRole) {
-      return res.status(403).json({ message: 'Not authorized to update this profile' });
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
     }
 
-    const updates = req.body;
-    const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true }).select('-passwordHash');
     res.json(updatedUser);
-
   } catch (err) {
     res.status(500).json({ message: 'Profile update failed', error: err.message });
   }
 };
+
 
 // PUT /users/upload/profile-image
 exports.uploadProfileImage = async (req, res) => {
