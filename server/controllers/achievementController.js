@@ -1,18 +1,43 @@
 const User = require('../models/User');
+const { cloudinary } = require('../utils/cloudinary');
 
 exports.addAchievement = async (req, res) => {
   try {
     const { title, type, year, description } = req.body;
-    const image = req.file?.path;
+    let imageUrl = null;
+
+    // Check if an image file is uploaded
+    if (req.file) {
+      console.log('File uploaded:', req.file);
+
+      // Upload to Cloudinary
+      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'alumniverse/achievements',  // Cloudinary folder for achievements' images
+        public_id: `${req.user.id}-achievement-${Date.now()}`,  // Unique public_id
+        resource_type: 'image',  // Treat file as an image
+      });
+
+      // Set the image URL from Cloudinary result
+      imageUrl = cloudinaryResult.secure_url;
+    }
 
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    user.achievements.push({ title, type, year, description, image });
+    // Add the achievement to the user's achievements
+    user.achievements.push({
+      title,
+      type,
+      year,
+      description,
+      image: imageUrl,  // Store the Cloudinary URL (or base64 image if needed)
+    });
+
     await user.save();
 
     res.status(200).json({ message: 'Achievement added', achievements: user.achievements });
   } catch (err) {
+    console.error('Error adding achievement:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 };
