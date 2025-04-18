@@ -26,30 +26,72 @@ exports.createPost = async (req, res) => {
   }
 };
 
+// exports.getAllPosts = async (req, res) => {
+//   try {
+//     const posts = await Post.find()
+//       .populate('author', 'fullName role profileImage jobTitle company')
+//       .sort({ createdAt: -1 });
+
+//     const formattedPosts = posts.map(post => ({
+//       ...post.toObject(),
+//       author: {
+//         id: post.author._id.toString(),
+//         name: post.author.fullName,
+//         role: post.author.role,
+//         profileImage: post.author.profileImage,
+//         currentJob: post.author.jobTitle,
+//         company: post.author.company
+//       }
+//     }));
+//     console.log("fp = ",formattedPosts);
+
+//     res.json(formattedPosts);
+//   } catch (err) {
+//     res.status(500).json({ message: 'Error fetching posts', error: err.message });
+//   }
+// };
+
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('author', 'fullName role profileImage jobTitle company')
+      .populate("author", "fullName role profileImage jobTitle company")
+      .populate("comments.user", "fullName profileImage") // ✅ populate commenter info
       .sort({ createdAt: -1 });
 
-    const formattedPosts = posts.map(post => ({
-      ...post.toObject(),
-      author: {
-        id: post.author._id.toString(),
-        name: post.author.fullName,
-        role: post.author.role,
-        profileImage: post.author.profileImage,
-        currentJob: post.author.jobTitle,
-        company: post.author.company
-      }
-    }));
-    console.log(formattedPosts);
+    const formattedPosts = posts
+      .filter((post) => post.author)
+      .map((post) => ({
+        ...post.toObject(),
+        author: {
+          id: post.author._id.toString(),
+          name: post.author.fullName,
+          role: post.author.role,
+          profileImage: post.author.profileImage,
+          currentJob: post.author.jobTitle,
+          company: post.author.company,
+        },
+        comments: post.comments.map((comment) => ({
+          _id: comment._id,
+          comment: comment.comment,
+          createdAt: comment.createdAt,
+          user: comment.user
+            ? {
+                id: comment.user._id.toString(),
+                name: comment.user.fullName,
+                profileImage: comment.user.profileImage,
+              }
+            : null,
+        })),
+      }));
 
     res.json(formattedPosts);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching posts', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching posts", error: err.message });
   }
 };
+
 
 exports.likePost = async (req, res) => {
   try {
