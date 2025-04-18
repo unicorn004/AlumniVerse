@@ -2,7 +2,7 @@ const Post = require('../models/Post');
 
 exports.createPost = async (req, res) => {
   try {
-    const newPost = await Post.create({ author: req.user.id, ...req.body });
+    const newPost = await Post.create({ author: req.user._id, ...req.body });
     res.status(201).json(newPost);
   } catch (err) {
     res.status(500).json({ message: 'Failed to create post', error: err.message });
