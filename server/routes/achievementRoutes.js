@@ -2,7 +2,8 @@ const express = require('express');
 const {
   addAchievement,
   getMyAchievements,
-  deleteAchievement
+  deleteAchievement,
+  getAllAchievements
 } = require('../controllers/achievementController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -15,5 +16,6 @@ const router = express.Router();
 router.get('/me', protect, isAlumni, getMyAchievements);
 router.post('/', protect, isAlumni, upload.single('image'), addAchievement); 
 router.delete('/:achvId', protect, isAlumni, deleteAchievement);
+router.get('/allAchievements', protect, getAllAchievements);
 
 module.exports = router;

@@ -76,7 +76,9 @@ exports.commentOnPost = async (req, res) => {
 
     post.comments.push({
       user: req.user.id,
-      comment: req.body.comment
+      comment: req.body.comment,
+      profileImage: req.user.profileImage,
+      fullName: req.user.fullName
     });
 
     await post.save();
