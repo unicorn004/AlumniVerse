@@ -25,7 +25,7 @@ const isAlumni = async (req, res, next) => {
     // console.log(req.headers.authorization);
 
     const user = await getUserFromToken(req.headers.authorization);
-    // console.log(user);
+    console.log(user);
 
     const plainUser = user.toObject ? user.toObject() : user;
 
