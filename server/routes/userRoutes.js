@@ -5,7 +5,9 @@ const {
   getUserById,
   updateUserProfile,
   uploadProfileImage,
-  uploadResume
+  uploadResume,
+  updateAllUserProfile,
+  getAllAchievements
 } = require('../controllers/userController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -16,8 +18,10 @@ const router = express.Router();
 // Authenticated routes
 router.get('/', protect, getAllUsers);             // Search + directory
 router.get('/me', protect, getMyProfile);          // Logged-in user's profile
-router.get('/:id', protect, getUserById);          // Any user's public profile
 router.put('/', protect, updateUserProfile);    
+router.put('/all', protect, updateAllUserProfile);  
+router.get('/allAchievements', protect, getAllAchievements);
+router.get('/:id', protect, getUserById);          // Any user's public profile
 
 router.put('/upload/profile-image', protect, upload.single('profileImage'), uploadProfileImage);
 router.put('/upload/resume', protect, upload.single('resume'), uploadResume);

@@ -129,3 +129,99 @@ exports.uploadResume = async (req, res) => {
     });
   }
 };
+
+exports.updateAllUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id; 
+    const {
+      fullName,
+      role,
+      graduationYear,
+      branch,
+      jobTitle,
+      company,
+      location,
+      bio,
+      profileImage,
+      linkedIn,
+      resume,
+      experiences,
+      education,
+      skills,
+      achievements,
+    } = req.body;
+
+    const updatedData = {
+      fullName,
+      role,
+      graduationYear,
+      branch,
+      jobTitle,
+      company,
+      location,
+      bio,
+      profileImage,
+      linkedIn,
+      resume,
+      experiences,
+      education,
+      skills,
+      achievements,
+      isProfileComplete: true,
+      updatedAt: new Date(),
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+      new: true,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while updating the profile",
+    });
+  }
+};
+
+
+
+exports.getAllAchievements = async (req, res) => {
+  try {
+    console.log("hello there");
+    const users = await User.find({}, {
+      fullName: 1,
+      jobTitle: 1,
+      company: 1,
+      graduationYear: 1,
+      achievements: 1
+    });
+
+    const allAchievements = [];
+
+    users.forEach(user => {
+      user.achievements.forEach(achievement => {
+        allAchievements.push({
+          ...achievement.toObject(), // Convert Mongoose subdocument to plain object
+          userName: user.fullName,
+          jobTitle: user.jobTitle,
+          company: user.company,
+          graduationYear: user.graduationYear
+        });
+      });
+    });
+
+    res.status(200).json(allAchievements);
+  } catch (error) {
+    console.error("Error fetching achievements:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching achievements"
+    });
+  }
+};
