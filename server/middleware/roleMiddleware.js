@@ -22,10 +22,10 @@ const getUserFromToken = async (authHeader) => {
 // Middleware for Alumni only
 const isAlumni = async (req, res, next) => {
   try {
-    console.log(req.headers.authorization);
+    // console.log(req.headers.authorization);
 
     const user = await getUserFromToken(req.headers.authorization);
-    console.log(user);
+    // console.log(user);
 
     const plainUser = user.toObject ? user.toObject() : user;
 

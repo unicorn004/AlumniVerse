@@ -17,7 +17,7 @@ exports.createPost = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('author', 'fullName profileImage role')
+      .populate('author', 'fullName profileImage userType')
       .sort({ createdAt: -1 });
     res.json(posts);
   } catch (err) {
@@ -29,7 +29,6 @@ exports.likePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     const userId = req.user.id;
-
     if (!post.likes.includes(userId)) {
       post.likes.push(userId);
     } else {
