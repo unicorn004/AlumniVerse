@@ -33,7 +33,6 @@ const isAlumni = async (req, res, next) => {
       return res.status(403).json({ message: "Access denied: Alumni only" });
     }
 
-    req.user = plainUser;
     next();
   } catch (err) {
     return res.status(401).json({ message: err.message });
@@ -51,7 +50,6 @@ const isStudent = async (req, res, next) => {
       return res.status(403).json({ message: "Access denied: Alumni only" });
     }
 
-    req.user = plainUser;
     next();
   } catch (err) {
     return res.status(401).json({ message: err.message });
