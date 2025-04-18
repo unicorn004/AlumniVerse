@@ -401,7 +401,7 @@ export default function ProfileSetupPage() {
 
       reader.onload = (event) => {
         if (event.target?.result) {
-          setNewAchievement((prev) => ({ ...prev, image: event.target.result as string }))
+          setNewAchievement((prev) => ({ ...prev, image: event.target?.result as string }))
         }
       }
 
