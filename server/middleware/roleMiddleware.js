@@ -22,14 +22,14 @@ const getUserFromToken = async (authHeader) => {
 // Middleware for Alumni only
 const isAlumni = async (req, res, next) => {
   try {
-    // console.log(req.headers.authorization);
+    console.log(req.headers.authorization);
 
     const user = await getUserFromToken(req.headers.authorization);
-    // console.log(user);
+    console.log(user);
 
     const plainUser = user.toObject ? user.toObject() : user;
 
-    if (plainUser.userType !== "alumni") {
+    if (plainUser.role !== "alumni") {
       return res.status(403).json({ message: "Access denied: Alumni only" });
     }
 
@@ -46,7 +46,7 @@ const isStudent = async (req, res, next) => {
 
     const plainUser = user.toObject ? user.toObject() : user;
 
-    if (plainUser.userType !== "student") {
+    if (plainUser.role !== "student") {
       return res.status(403).json({ message: "Access denied: Alumni only" });
     }
 

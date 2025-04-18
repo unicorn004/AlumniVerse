@@ -44,6 +44,8 @@ exports.likePost = async (req, res) => {
 
 exports.commentOnPost = async (req, res) => {
   try {
+    console.log(req.params.id);
+    
     const post = await Post.findById(req.params.id);
     if (!req.body.comment) return res.status(400).json({ message: 'Comment cannot be empty' });
 
