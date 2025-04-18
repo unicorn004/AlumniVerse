@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const { cloudinary } = require('../utils/cloudinary');
+const { cloudinary, uploadToCloudinary } = require('../utils/cloudinary');
 // GET /users?branch=IT&graduationYear=2020&location=Delhi&page=1&limit=10
 exports.getAllUsers = async (req, res) => {
   try {
