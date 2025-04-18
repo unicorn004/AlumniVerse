@@ -114,25 +114,39 @@ exports.uploadResume = async (req, res) => {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    const user = await User.findById(req.user.id);
+    // Check if the uploaded file is a resume (e.g., PDF or document)
+    if (!req.file.mimetype.startsWith('application/')) {
+      return res.status(400).json({ message: 'Invalid file type. Only documents are allowed.' });
+    }
 
+    // Upload the resume to Cloudinary
+    const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+      folder: 'alumniverse/resumes',  
+      public_id: `${req.user.id}-resume-${Date.now()}`,  
+      resource_type: 'raw',  
+    });
+
+    // Find the user and update the resume URL in the profile
+    const user = await User.findById(req.user.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    user.resume = req.file.url;
+    // Update the user's resume URL with the one returned by Cloudinary
+    user.resume = cloudinaryResult.secure_url;
+
     await user.save();
 
     res.json({
       message: 'Resume uploaded successfully',
-      url: req.file.url
+      url: cloudinaryResult.secure_url,  // The URL of the uploaded resume
     });
 
   } catch (err) {
     console.error('Error uploading resume:', err);
     res.status(500).json({
       message: 'Resume upload failed',
-      error: err.message
+      error: err.message,
     });
   }
 };
@@ -177,6 +191,26 @@ exports.updateAllUserProfile = async (req, res) => {
       isProfileComplete: true,
       updatedAt: new Date(),
     };
+
+    if (profileImage && profileImage.startsWith('data:image')) {
+      const cloudinaryResult = await cloudinary.uploader.upload(profileImage, {
+        folder: 'alumniverse',  
+        public_id: `${userId}-profile`,  
+        resource_type: 'image',  
+      });
+
+      updatedData.profileImage = cloudinaryResult.secure_url;  // Save the Cloudinary image URL
+    }
+
+    if (resume && resume.startsWith('data:application')) {
+      const cloudinaryResult = await cloudinary.uploader.upload(resume, {
+        folder: 'alumniverse',  // Cloudinary folder
+        public_id: `${userId}-resume`,  // Use user ID for unique public ID
+        resource_type: 'raw',  // Treat as raw file (e.g., PDF)
+      });
+
+      updatedData.resume = cloudinaryResult.secure_url;  // Save the Cloudinary resume URL
+    }
 
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
       new: true,

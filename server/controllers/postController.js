@@ -1,5 +1,41 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
+const { cloudinary } = require('../utils/cloudinary');
+
+exports.createPost = async (req, res) => {
+  try {
+    let imageUrl = null;
+
+    if (req.file) {
+      console.log('File uploaded:', req.file);
+
+      // Upload to Cloudinary
+      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'alumniverse', 
+        public_id: `${req.user.id}-post-${Date.now()}`,  
+        resource_type: 'image', 
+      });
+
+      // Set the image URL from Cloudinary result
+      imageUrl = cloudinaryResult.secure_url;
+    }
+    // If image is sent as base64 (via req.body.image)
+    else if (req.body.image) {
+      imageUrl = req.body.image;  // Base64 image URL
+    }
+
+    const newPost = await Post.create({
+      author: req.user._id,
+      ...req.body,
+      image: imageUrl,  // Save the image URL in the post
+    });
+
+    res.status(201).json(newPost);  // Respond with the created post
+  } catch (err) {
+    console.error('Error creating post:', err);
+    res.status(500).json({ message: 'Failed to create post', error: err.message });
+  }
+};
 
 exports.createPost = async (req, res) => {
   try {
