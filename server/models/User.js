@@ -44,9 +44,9 @@ const userSchema = new mongoose.Schema({
 
   role: {
     type: String,
-    enum: ['alumni', 'student', 'admin'],
-    default: 'student',
-    required: true
+    enum: ["alumni", "student", "admin"],
+    default: "student",
+    required: true,
   },
 
   graduationYear: Number,
@@ -66,9 +66,10 @@ const userSchema = new mongoose.Schema({
   achievements: [achievementSchema],
 
   isVerified: { type: Boolean, default: false },
+  isProfileComplete: { type: Boolean, default: false },
 
   createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
 });
 
 module.exports = mongoose.model('User', userSchema);

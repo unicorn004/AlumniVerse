@@ -64,23 +64,25 @@ export default function SignupPage() {
       const response = await register(body);
 
       // Check if the response status is not 201
-      console.log("response = ",response);
+      //console.log("response = ",response);
       if (response.message !== "User registered successfully") {
         throw new Error("Failed to create account. Please try again.");
       }
 
-      localStorage.setItem(
-        "user",
-        JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          role: formData.role,
-          isProfileComplete: false,
-        }),
-      )
+      // localStorage.setItem(
+      //   "user",
+      //   JSON.stringify({
+      //     name: formData.name,
+      //     email: formData.email,
+      //     role: formData.role,
+      //     isProfileComplete: false,
+      //   }),
+      // )
 
       // Redirect to profile setup
-      router.push("/profile-setup")
+      //router.push("/profile-setup")
+      router.push("/login")
+
     } catch (err) {
       setError("Failed to create account. Please try again.")
     } finally {

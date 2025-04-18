@@ -48,8 +48,14 @@ export default function LoginPage() {
 
       // console.log("Token:", token);
       // console.log("User:", user);
+      if(response.user.isProfileComplete===true){
+        router.push("/home");
+      }
+      else{
+        router.push("/profile-setup");
+      }
 
-      router.push("/home");
+      
     } catch (err) {
       setError("Invalid email or password. Please try again.");
     } finally {
