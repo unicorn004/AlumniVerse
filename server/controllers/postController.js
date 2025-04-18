@@ -1,4 +1,5 @@
 const Post = require('../models/Post');
+const User = require('../models/User');
 
 exports.createPost = async (req, res) => {
   try {
@@ -28,9 +29,22 @@ exports.createPost = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('author', 'fullName profileImage userType')
+      .populate('author', 'fullName role profileImage jobTitle company')
       .sort({ createdAt: -1 });
-    res.json(posts);
+
+    const formattedPosts = posts.map(post => ({
+      ...post.toObject(),
+      author: {
+        id: post.author._id.toString(),
+        name: post.author.fullName,
+        role: post.author.role,
+        profileImage: post.author.profileImage,
+        currentJob: post.author.jobTitle,
+        company: post.author.company
+      }
+    }));
+
+    res.json(formattedPosts);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching posts', error: err.message });
   }
