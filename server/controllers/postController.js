@@ -1,15 +1,27 @@
 const Post = require('../models/Post');
+const User = require('../models/User');
 
 exports.createPost = async (req, res) => {
   try {
+    let imageUrl = null;
+
+    if (req.file) {
+      console.log('File uploaded:', req.file);  
+      imageUrl = req.file.url; 
+    }
+    else if (req.body.image) {
+      imageUrl = req.body.image;  
+    }
+
     const newPost = await Post.create({
       author: req.user._id,
       ...req.body,
-      image: req.file?.path || null
+      image: imageUrl,  
     });
 
-    res.status(201).json(newPost);
+    res.status(201).json(newPost);  
   } catch (err) {
+    console.error('Error creating post:', err);  
     res.status(500).json({ message: 'Failed to create post', error: err.message });
   }
 };
@@ -17,9 +29,22 @@ exports.createPost = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('author', 'fullName profileImage userType')
+      .populate('author', 'fullName role profileImage jobTitle company')
       .sort({ createdAt: -1 });
-    res.json(posts);
+
+    const formattedPosts = posts.map(post => ({
+      ...post.toObject(),
+      author: {
+        id: post.author._id.toString(),
+        name: post.author.fullName,
+        role: post.author.role,
+        profileImage: post.author.profileImage,
+        currentJob: post.author.jobTitle,
+        company: post.author.company
+      }
+    }));
+
+    res.json(formattedPosts);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching posts', error: err.message });
   }

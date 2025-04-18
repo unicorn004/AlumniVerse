@@ -49,48 +49,179 @@ exports.getUserById = async (req, res) => {
 // PUT /users/:id
 exports.updateUserProfile = async (req, res) => {
   try {
-    console.log("hello");
-    console.log(req.user);
-    
-    const userId = req.user.id;
-    console.log(userId);
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      req.body,
-      { new: true }
-    ).select('-passwordHash'); // Exclude password hash from response
+    const { id } = req.params;
+    const userToUpdate = await User.findById(id);
+    if (!userToUpdate) return res.status(404).json({ message: 'User not found' });
 
-    if (!updatedUser) {
-      return res.status(404).json({ message: 'User not found' });
+    const currentUser = req.user;
+    const isSelf = currentUser.id === id;
+    const sameRole = currentUser.role === userToUpdate.role;
+
+    if (!isSelf && currentUser.role !== 'admin' && !sameRole) {
+      return res.status(403).json({ message: 'Not authorized to update this profile' });
     }
 
+    const updates = req.body;
+    const updatedUser = await User.findByIdAndUpdate(id, updates, { new: true }).select('-passwordHash');
     res.json(updatedUser);
+
   } catch (err) {
     res.status(500).json({ message: 'Profile update failed', error: err.message });
   }
 };
 
-
-// PUT /users/upload/profile-image
 exports.uploadProfileImage = async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
     const user = await User.findById(req.user.id);
-    user.profileImage = req.file.path;
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.profileImage = req.file.url;
+
     await user.save();
-    res.json({ message: 'Profile image uploaded', url: req.file.path });
+
+    res.json({
+      message: 'Profile image uploaded successfully',
+      url: req.file.url 
+    });
+    
   } catch (err) {
-    res.status(500).json({ message: 'Image upload failed', error: err.message });
+    console.error('Error uploading profile image:', err);
+    res.status(500).json({
+      message: 'Image upload failed',
+      error: err.message
+    });
   }
 };
 
 // PUT /users/upload/resume
 exports.uploadResume = async (req, res) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
     const user = await User.findById(req.user.id);
-    user.resume = req.file.path;
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.resume = req.file.url;
     await user.save();
-    res.json({ message: 'Resume uploaded', url: req.file.path });
+
+    res.json({
+      message: 'Resume uploaded successfully',
+      url: req.file.url
+    });
+
   } catch (err) {
-    res.status(500).json({ message: 'Resume upload failed', error: err.message });
+    console.error('Error uploading resume:', err);
+    res.status(500).json({
+      message: 'Resume upload failed',
+      error: err.message
+    });
+  }
+};
+
+exports.updateAllUserProfile = async (req, res) => {
+  try {
+    const userId = req.user.id; 
+    const {
+      fullName,
+      role,
+      graduationYear,
+      branch,
+      jobTitle,
+      company,
+      location,
+      bio,
+      profileImage,
+      linkedIn,
+      resume,
+      experiences,
+      education,
+      skills,
+      achievements,
+    } = req.body;
+
+    const updatedData = {
+      fullName,
+      role,
+      graduationYear,
+      branch,
+      jobTitle,
+      company,
+      location,
+      bio,
+      profileImage,
+      linkedIn,
+      resume,
+      experiences,
+      education,
+      skills,
+      achievements,
+      isProfileComplete: true,
+      updatedAt: new Date(),
+    };
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+      new: true,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while updating the profile",
+    });
+  }
+};
+
+
+
+exports.getAllAchievements = async (req, res) => {
+  try {
+    console.log("hello there");
+    const users = await User.find({}, {
+      fullName: 1,
+      jobTitle: 1,
+      company: 1,
+      graduationYear: 1,
+      achievements: 1
+    });
+
+    const allAchievements = [];
+
+    users.forEach(user => {
+      user.achievements.forEach(achievement => {
+        allAchievements.push({
+          ...achievement.toObject(), // Convert Mongoose subdocument to plain object
+          userName: user.fullName,
+          jobTitle: user.jobTitle,
+          company: user.company,
+          graduationYear: user.graduationYear
+        });
+      });
+    });
+
+    res.status(200).json(allAchievements);
+  } catch (error) {
+    console.error("Error fetching achievements:", error);
+    res.status(500).json({
+      success: false,
+      message: "An error occurred while fetching achievements"
+    });
   }
 };
