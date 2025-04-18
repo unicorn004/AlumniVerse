@@ -9,6 +9,8 @@ const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const eventRoutes = require('./routes/eventRoutes');
+const achievementRoutes = require('./routes/achievementRoutes');
+const linkedinRoutes = require('./routes/linkedinRoutes');
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/achievements', achievementRoutes);
+app.use('/api/linkedin', linkedinRoutes);
 
 app.get('/', (req, res) => {
   res.send('🎓 Alumni Connect API is running...');

@@ -12,7 +12,7 @@ exports.createPost = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('author', 'fullName profileImage userType')
+      .populate('author', 'fullName profileImage role')
       .sort({ createdAt: -1 });
     res.json(posts);
   } catch (err) {
@@ -40,10 +40,16 @@ exports.likePost = async (req, res) => {
 
 exports.commentOnPost = async (req, res) => {
   try {
+    if (!req.body.comment || req.body.comment.trim() === '') {
+      return res.status(400).json({ message: 'Comment cannot be empty' });
+    }
+
     const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).json({ message: 'Post not found' });
+
     post.comments.push({
       user: req.user.id,
-      comment: req.body.comment
+      comment: req.body.comment.trim()
     });
 
     await post.save();

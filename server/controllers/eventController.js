@@ -15,7 +15,10 @@ exports.createEvent = async (req, res) => {
 
 exports.getAllEvents = async (req, res) => {
   try {
-    const events = await Event.find().sort({ date: 1 });
+    const events = await Event.find()
+    .populate('createdBy', 'fullName email role')
+    .sort({ date: 1 });
+
     res.json(events);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch events', error: err.message });
