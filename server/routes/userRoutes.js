@@ -7,7 +7,6 @@ const {
   uploadProfileImage,
   uploadResume,
   updateAllUserProfile,
-  getAllAchievements
 } = require('../controllers/userController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -20,7 +19,6 @@ router.get('/', protect, getAllUsers);             // Search + directory
 router.get('/me', protect, getMyProfile);          // Logged-in user's profile
 router.put('/', protect, updateUserProfile);    
 router.put('/all', protect, updateAllUserProfile);  
-router.get('/allAchievements', protect, getAllAchievements);
 router.get('/:id', protect, getUserById);          // Any user's public profile
 
 router.put('/upload/profile-image', protect, upload.single('profileImage'), uploadProfileImage);
