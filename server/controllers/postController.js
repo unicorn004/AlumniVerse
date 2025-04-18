@@ -2,7 +2,12 @@ const Post = require('../models/Post');
 
 exports.createPost = async (req, res) => {
   try {
-    const newPost = await Post.create({ author: req.user.id, ...req.body });
+    const newPost = await Post.create({
+      author: req.user.id,
+      ...req.body,
+      image: req.file?.path || null
+    });
+
     res.status(201).json(newPost);
   } catch (err) {
     res.status(500).json({ message: 'Failed to create post', error: err.message });
@@ -40,16 +45,12 @@ exports.likePost = async (req, res) => {
 
 exports.commentOnPost = async (req, res) => {
   try {
-    if (!req.body.comment || req.body.comment.trim() === '') {
-      return res.status(400).json({ message: 'Comment cannot be empty' });
-    }
-
     const post = await Post.findById(req.params.id);
-    if (!post) return res.status(404).json({ message: 'Post not found' });
+    if (!req.body.comment) return res.status(400).json({ message: 'Comment cannot be empty' });
 
     post.comments.push({
       user: req.user.id,
-      comment: req.body.comment.trim()
+      comment: req.body.comment
     });
 
     await post.save();

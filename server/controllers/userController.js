@@ -24,7 +24,7 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-//  GET /users/me - from token
+// GET /users/me
 exports.getMyProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-passwordHash');
@@ -35,7 +35,7 @@ exports.getMyProfile = async (req, res) => {
   }
 };
 
-//  GET /users/:id - view other user's profile (public)
+// GET /users/:id
 exports.getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select('-passwordHash');
@@ -46,7 +46,7 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// ✅ PUT /users/:id - edit with ownership/role check
+// PUT /users/:id
 exports.updateUserProfile = async (req, res) => {
   try {
     const { id } = req.params;
@@ -57,12 +57,8 @@ exports.updateUserProfile = async (req, res) => {
     const isSelf = currentUser.id === id;
     const sameRole = currentUser.role === userToUpdate.role;
 
-    if (!isSelf) {
-      if (currentUser.role === 'admin') {
-        // Admin can edit anyone
-      } else if (!sameRole) {
-        return res.status(403).json({ message: 'Not authorized to update this profile' });
-      }
+    if (!isSelf && currentUser.role !== 'admin' && !sameRole) {
+      return res.status(403).json({ message: 'Not authorized to update this profile' });
     }
 
     const updates = req.body;
@@ -71,5 +67,29 @@ exports.updateUserProfile = async (req, res) => {
 
   } catch (err) {
     res.status(500).json({ message: 'Profile update failed', error: err.message });
+  }
+};
+
+// PUT /users/upload/profile-image
+exports.uploadProfileImage = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    user.profileImage = req.file.path;
+    await user.save();
+    res.json({ message: 'Profile image uploaded', url: req.file.path });
+  } catch (err) {
+    res.status(500).json({ message: 'Image upload failed', error: err.message });
+  }
+};
+
+// PUT /users/upload/resume
+exports.uploadResume = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    user.resume = req.file.path;
+    await user.save();
+    res.json({ message: 'Resume uploaded', url: req.file.path });
+  } catch (err) {
+    res.status(500).json({ message: 'Resume upload failed', error: err.message });
   }
 };

@@ -1,17 +1,19 @@
 const express = require('express');
-const router = express.Router();
-const { protect } = require('../middleware/authMiddleware');
-const { isAlumni } = require('../middleware/roleMiddleware');
-
 const {
   addAchievement,
   getMyAchievements,
   deleteAchievement
 } = require('../controllers/achievementController');
 
-// Alumni only
+const { protect } = require('../middleware/authMiddleware');
+const { isAlumni } = require('../middleware/roleMiddleware');
+const { upload } = require('../utils/cloudinary');
+
+const router = express.Router();
+
+// Alumni only routes
 router.get('/me', protect, isAlumni, getMyAchievements);
-router.post('/', protect, isAlumni, addAchievement);
+router.post('/', protect, isAlumni, upload.single('image'), addAchievement); 
 router.delete('/:achvId', protect, isAlumni, deleteAchievement);
 
 module.exports = router;
