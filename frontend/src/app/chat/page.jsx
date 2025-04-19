@@ -28,7 +28,7 @@ export default function ChatPage() {
   
   // Socket.io state
   const [socket, setSocket] = useState(null)
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected, setIsConnected] = useState(true)
   const [rooms, setRooms] = useState([])
   const [users, setUsers] = useState([])
   const [messages, setMessages] = useState([])
@@ -167,7 +167,7 @@ export default function ChatPage() {
 
     newSocket.on("connect", () => {
       console.log("Socket connected:", newSocket.id)
-      setIsConnected(true)
+      // setIsConnected(true)
       newSocket.emit("joinRoom", selectedRoom._id)
     })
 
@@ -192,7 +192,7 @@ export default function ChatPage() {
 
     newSocket.on("disconnect", () => {
       console.log("Socket disconnected.")
-      setIsConnected(false)
+      // setIsConnected(false)
     })
 
     setSocket(newSocket)
@@ -417,9 +417,9 @@ export default function ChatPage() {
                         {selectedRoom.user1 && selectedRoom.user2 && 
                           (selectedRoom.user1._id === currentUserId ? selectedRoom.user2.fullName : selectedRoom.user1.fullName)}
                       </h3>
-                      <div className="text-sm text-muted-foreground">
+                      {/* <div className="text-sm text-muted-foreground">
                         {isConnected ? "Online" : "Offline"}
-                      </div>
+                      </div> */}
                     </div>
                   </>
                 )}
@@ -469,9 +469,9 @@ export default function ChatPage() {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     className="flex-1"
-                    disabled={!isConnected}
+                    // disabled={!isConnected}
                   />
-                  <Button type="submit" size="icon" disabled={!newMessage.trim() || !isConnected}>
+                  <Button type="submit" size="icon" disabled={!newMessage.trim()}>
                     <Send className="h-4 w-4" />
                   </Button>
                 </form>
