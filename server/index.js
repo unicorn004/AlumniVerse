@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
-
+const { Server } = require("socket.io");
+const http = require('http');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const postRoutes = require('./routes/postRoutes');
@@ -12,7 +13,27 @@ const eventRoutes = require('./routes/eventRoutes');
 const achievementRoutes = require('./routes/achievementRoutes');
 const linkedinRoutes = require('./routes/linkedinRoutes');
 
+
+// const groupRoutes = require("./routes/groupRoutes.js");
+const { router: chatRoutes, handleSocketConnections } = require("./routes/chat.js");
+
 const app = express();
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CORS_ALLOWED_ORIGIN || "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true
+  },
+  transports: ['websocket', 'polling'],
+  logger: 'debug'
+});
+
+// Initialize socket.io
+handleSocketConnections(io);
+app.set("socketio", io);
+
 
 // Middlewares
 app.use(cors());
@@ -26,6 +47,8 @@ app.use('/api/messages', messageRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/achievements', achievementRoutes);
 app.use('/api/linkedin', linkedinRoutes);
+// app.use("/api/group", groupRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.get('/', (req, res) => {
   res.send('🎓 Alumni Connect API is running...');
@@ -34,7 +57,7 @@ app.get('/', (req, res) => {
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     console.log('Connected to MongoDB');
-    app.listen(process.env.PORT || 5000, () =>
+    server.listen(process.env.PORT || 5000, () =>
       console.log(`Server running on http://localhost:${process.env.PORT || 5000}`)
     );
   }).catch((err) => {
