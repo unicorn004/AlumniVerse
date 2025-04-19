@@ -5,12 +5,12 @@ const { cloudinary } = require('../utils/cloudinary');
 exports.createPost = async (req, res) => {
   try {
     let imageUrl = null;
-    console.log("req.body = ", req.body);
-    console.log("req.file = ", req.file);
+    // console.log("req.body = ", req.body);
+    // console.log("req.file = ", req.file);
 
 
     if (req.file) {
-      console.log('File uploaded:', req.file);
+      // console.log('File uploaded:', req.file);
 
       // Upload to Cloudinary
       const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
@@ -27,7 +27,7 @@ exports.createPost = async (req, res) => {
       imageUrl = req.body.image;  // Base64 image URL
     }
 
-    console.log("imageURL  ========================== ",imageUrl);
+    // console.log("imageURL  ========================== ",imageUrl);
 
 
     const newPost = await Post.create({
@@ -60,7 +60,7 @@ exports.createPost = async (req, res) => {
 //         company: post.author.company
 //       }
 //     }));
-//     console.log("fp = ",formattedPosts);
+//     // console.log("fp = ",formattedPosts);
 
 //     res.json(formattedPosts);
 //   } catch (err) {
@@ -129,7 +129,7 @@ exports.likePost = async (req, res) => {
 
 exports.commentOnPost = async (req, res) => {
   try {
-    console.log(req.params.id);
+    // console.log(req.params.id);
     
     const post = await Post.findById(req.params.id);
     if (!req.body.comment) return res.status(400).json({ message: 'Comment cannot be empty' });

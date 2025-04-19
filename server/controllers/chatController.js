@@ -50,7 +50,7 @@ const handleSocketConnections = (io) => {
     if (!token) {
       return next(new Error("Authentication token missing"));
     }
-    console.log("from socket" + token);
+    // console.log("from socket" + token);
     
     try {
       const decoded = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET);
@@ -63,12 +63,12 @@ const handleSocketConnections = (io) => {
   });
 
   io.on("connection", (socket) => {
-    console.log(`New client connected: ${socket.user.id}`);
+    // console.log(`New client connected: ${socket.user.id}`);
 
     // Join Room
     socket.on("joinRoom", async (roomId) => {
       socket.join(roomId);
-      console.log(`User ${socket.user.id} joined room ${roomId}`);
+      // console.log(`User ${socket.user.id} joined room ${roomId}`);
 
       try {
         const room = await Room.findById(roomId).populate({
@@ -87,11 +87,11 @@ const handleSocketConnections = (io) => {
     // Handle incoming message
     socket.on("serverRcvsMsg", async (messageData) => {
       try {
-        console.log(`Message received in room ${messageData.roomId}:`, messageData);
+        // console.log(`Message received in room ${messageData.roomId}:`, messageData);
 
         const room = await Room.findById(messageData.roomId);
         if (!room) {
-          console.log("Room not found");
+          // console.log("Room not found");
           return;
         }
 
@@ -119,13 +119,13 @@ const handleSocketConnections = (io) => {
         });
 
         if (!populatedRoom || populatedRoom.messages.length === 0) {
-          console.log("No messages found after saving.");
+          // console.log("No messages found after saving.");
           return;
         }
 
         const populatedMessage = populatedRoom.messages[0];
 
-        console.log("Emitting message to room:", messageData.roomId, populatedMessage);
+        // console.log("Emitting message to room:", messageData.roomId, populatedMessage);
         io.to(messageData.roomId).emit("serverSendsMsg", populatedMessage);
       } catch (error) {
         console.error("Error processing message:", error);
@@ -133,7 +133,7 @@ const handleSocketConnections = (io) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("Client disconnected");
+      // console.log("Client disconnected");
     });
   });
 };

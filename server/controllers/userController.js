@@ -3,7 +3,7 @@ const { cloudinary, uploadToCloudinary } = require('../utils/cloudinary');
 // GET /users?branch=IT&graduationYear=2020&location=Delhi&page=1&limit=10
 exports.getAllUsers = async (req, res) => {
   try {
-    console.log("GET ALL USER CALLED");
+    // console.log("GET ALL USER CALLED");
     const filters = {};
     if (req.query.role) filters.role = req.query.role;
     if (req.query.branch) filters.branch = req.query.branch;
@@ -162,7 +162,7 @@ exports.updateAllUserProfile = async (req, res) => {
       return res.status(400).json({ success: false, message: "User ID not found in request" });
     }
 
-    console.log('User ID from request:', userId);  // Check if userId is valid
+    // console.log('User ID from request:', userId);  // Check if userId is valid
     
     let {
       fullName,
@@ -293,7 +293,7 @@ exports.updateAllUserProfile = async (req, res) => {
       isProfileComplete: true,
       updatedAt: new Date(),
     };
-    console.log(updatedData)
+    // console.log(updatedData)
 
     // Update the user in the database
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true });

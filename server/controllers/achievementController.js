@@ -8,7 +8,7 @@ exports.addAchievement = async (req, res) => {
 
     // Check if an image file is uploaded
     if (req.file) {
-      console.log('File uploaded:', req.file);
+      // console.log('File uploaded:', req.file);
 
       // Upload to Cloudinary
       const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
@@ -67,7 +67,7 @@ exports.deleteAchievement = async (req, res) => {
 
 exports.getAllAchievements = async (req, res) => {
   try {
-    //console.log("hello there");
+    //// console.log("hello there");
     const users = await User.find({}, {
       _id: 1,
       fullName: 1,
