@@ -22,7 +22,8 @@ const app = express();
 const server = http.createServer(app);
 // CORS setup for Express
 app.use(cors({
-  origin: process.env.CORS_ALLOWED_ORIGIN,
+  // origin: process.env.CORS_ALLOWED_ORIGIN,
+  origin:"*",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));
@@ -30,7 +31,8 @@ app.use(cors({
 // Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ALLOWED_ORIGIN,
+    // origin: process.env.CORS_ALLOWED_ORIGIN,
+    origin:"*",
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true
   },
