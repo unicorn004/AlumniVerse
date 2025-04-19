@@ -4,35 +4,27 @@ const experienceSchema = new mongoose.Schema({
   jobTitle: String,
   company: String,
   description: String,
-  startDate: {
-    month: String,
-    year: Number
-  },
-  endDate: {
-    month: String,
-    year: Number
-  },
-  currentlyWorking: { type: Boolean, default: false }
+  startMonth: String,
+  startYear: String,
+  endMonth: String,
+  endYear: String,
+  current: { type: Boolean, default: false }
 }, { _id: false });
 
 const educationSchema = new mongoose.Schema({
-  degreeOrCertificate: String,
+  degree: String,
   institution: String,
-  startDate: {
-    month: String,
-    year: Number
-  },
-  endDate: {
-    month: String,
-    year: Number
-  },
-  currentlyStudying: { type: Boolean, default: false }
+  startMonth: String,
+  startYear: String,
+  endMonth: String,
+  endYear: String,
+  current: { type: Boolean, default: false }
 }, { _id: false });
 
 const achievementSchema = new mongoose.Schema({
   title: String,
   type: String,
-  year: Number,
+  year: String,
   description: String,
   image: String // image URL or base64 or Cloudinary ref
 }, { _id: true });
