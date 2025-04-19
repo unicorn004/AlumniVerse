@@ -1,54 +1,114 @@
 const Post = require('../models/Post');
 const User = require('../models/User');
+const { cloudinary } = require('../utils/cloudinary');
 
 exports.createPost = async (req, res) => {
   try {
     let imageUrl = null;
+    console.log("req.body = ", req.body);
+    console.log("req.file = ", req.file);
+
 
     if (req.file) {
-      console.log('File uploaded:', req.file);  
-      imageUrl = req.file.url; 
+      console.log('File uploaded:', req.file);
+
+      // Upload to Cloudinary
+      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+        folder: 'alumniverse', 
+        public_id: `${req.user.id}-post-${Date.now()}`,  
+        resource_type: 'image', 
+      });
+
+      // Set the image URL from Cloudinary result
+      imageUrl = cloudinaryResult.secure_url;
     }
+    // If image is sent as base64 (via req.body.image)
     else if (req.body.image) {
-      imageUrl = req.body.image;  
+      imageUrl = req.body.image;  // Base64 image URL
     }
+
+    console.log("imageURL  ========================== ",imageUrl);
+
 
     const newPost = await Post.create({
       author: req.user._id,
       ...req.body,
-      image: imageUrl,  
+      image: imageUrl,  // Save the image URL in the post
     });
 
-    res.status(201).json(newPost);  
+    res.status(201).json(newPost);  // Respond with the created post
   } catch (err) {
-    console.error('Error creating post:', err);  
+    console.error('Error creating post:', err);
     res.status(500).json({ message: 'Failed to create post', error: err.message });
   }
 };
 
+// exports.getAllPosts = async (req, res) => {
+//   try {
+//     const posts = await Post.find()
+//       .populate('author', 'fullName role profileImage jobTitle company')
+//       .sort({ createdAt: -1 });
+
+//     const formattedPosts = posts.map(post => ({
+//       ...post.toObject(),
+//       author: {
+//         id: post.author._id.toString(),
+//         name: post.author.fullName,
+//         role: post.author.role,
+//         profileImage: post.author.profileImage,
+//         currentJob: post.author.jobTitle,
+//         company: post.author.company
+//       }
+//     }));
+//     console.log("fp = ",formattedPosts);
+
+//     res.json(formattedPosts);
+//   } catch (err) {
+//     res.status(500).json({ message: 'Error fetching posts', error: err.message });
+//   }
+// };
+
 exports.getAllPosts = async (req, res) => {
   try {
     const posts = await Post.find()
-      .populate('author', 'fullName role profileImage jobTitle company')
+      .populate("author", "fullName role profileImage jobTitle company")
+      .populate("comments.user", "fullName profileImage") // ✅ populate commenter info
       .sort({ createdAt: -1 });
 
-    const formattedPosts = posts.map(post => ({
-      ...post.toObject(),
-      author: {
-        id: post.author._id.toString(),
-        name: post.author.fullName,
-        role: post.author.role,
-        profileImage: post.author.profileImage,
-        currentJob: post.author.jobTitle,
-        company: post.author.company
-      }
-    }));
+    const formattedPosts = posts
+      .filter((post) => post.author)
+      .map((post) => ({
+        ...post.toObject(),
+        author: {
+          id: post.author._id.toString(),
+          name: post.author.fullName,
+          role: post.author.role,
+          profileImage: post.author.profileImage,
+          currentJob: post.author.jobTitle,
+          company: post.author.company,
+        },
+        comments: post.comments.map((comment) => ({
+          _id: comment._id,
+          comment: comment.comment,
+          createdAt: comment.createdAt,
+          user: comment.user
+            ? {
+                id: comment.user._id.toString(),
+                name: comment.user.fullName,
+                profileImage: comment.user.profileImage,
+              }
+            : null,
+        })),
+      }));
 
     res.json(formattedPosts);
   } catch (err) {
-    res.status(500).json({ message: 'Error fetching posts', error: err.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching posts", error: err.message });
   }
 };
+
 
 exports.likePost = async (req, res) => {
   try {
