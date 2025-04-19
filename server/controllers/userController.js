@@ -343,12 +343,17 @@ exports.uploadResume = async (req, res) => {
 //   }
 // };
 
-
-
-
 exports.updateAllUserProfile = async (req, res) => {
   try {
     const userId = req.user.id;
+    
+    // Log to check if the user ID exists
+    if (!userId) {
+      return res.status(400).json({ success: false, message: "User ID not found in request" });
+    }
+
+    console.log('User ID from request:', userId);  // Check if userId is valid
+    
     let {
       fullName,
       role,
@@ -371,30 +376,60 @@ exports.updateAllUserProfile = async (req, res) => {
     if (typeof experiences === "string") experiences = JSON.parse(experiences);
     if (typeof education === "string") education = JSON.parse(education);
     if (typeof skills === "string") skills = JSON.parse(skills);
-    if (typeof achievements === "string")
-      achievements = JSON.parse(achievements);
+    if (typeof achievements === "string") achievements = JSON.parse(achievements);
 
-    // Handle profileImage and resume (if base64)
+    // Handle profileImage and resume (file uploads via req.file)
+    let profileImageUrl = profileImage;  // Store updated URL for profileImage
+    let resumeUrl = resume;  // Store updated URL for resume
+
+    if (req.files) {
+      // Handle profileImage upload (from req.files)
+      if (req.files.profileImage) {
+        const cloudinaryResult = await cloudinary.uploader.upload(req.files.profileImage[0].path, {
+          folder: "alumniverse",
+          public_id: `${userId}-profile`,
+          resource_type: "image",
+        });
+        profileImageUrl = cloudinaryResult.secure_url;  // Save Cloudinary URL
+      }
+
+      // Handle resume upload (from req.files)
+      if (req.files.resume) {
+        const cloudinaryResult = await cloudinary.uploader.upload(req.files.resume[0].path, {
+          folder: "alumniverse",
+          public_id: `${userId}-resume`,
+          resource_type: "raw",
+        });
+        resumeUrl = cloudinaryResult.secure_url;  // Save Cloudinary URL
+      }
+    }
+
+    // Handle profileImage upload if Base64 string
     if (profileImage && profileImage.startsWith("data:image")) {
       const cloudinaryResult = await cloudinary.uploader.upload(profileImage, {
         folder: "alumniverse",
         public_id: `${userId}-profile`,
         resource_type: "image",
       });
-      profileImage = cloudinaryResult.secure_url;
+      profileImageUrl = cloudinaryResult.secure_url;  // Save Cloudinary URL
     }
 
+    // Handle resume upload if Base64 string
     if (resume && resume.startsWith("data:application")) {
       const cloudinaryResult = await cloudinary.uploader.upload(resume, {
         folder: "alumniverse",
         public_id: `${userId}-resume`,
         resource_type: "raw",
       });
-      resume = cloudinaryResult.secure_url;
+      resumeUrl = cloudinaryResult.secure_url;  // Save Cloudinary URL
     }
 
     // Match uploaded achievement images
     let achievementImages = req.files?.achievementImages || [];
+
+    if (!Array.isArray(achievements)) {
+      achievements = [];
+    }
 
     if (!Array.isArray(achievementImages)) {
       achievementImages = [achievementImages]; // handle single file case
@@ -428,6 +463,7 @@ exports.updateAllUserProfile = async (req, res) => {
 
     achievements = updatedAchievements;
 
+    // Prepare updated data object with the Cloudinary URLs
     const updatedData = {
       fullName,
       role,
@@ -437,9 +473,9 @@ exports.updateAllUserProfile = async (req, res) => {
       company,
       location,
       bio,
-      profileImage,
+      profileImage: profileImageUrl,  // Updated with Cloudinary URL
       linkedIn,
-      resume,
+      resume: resumeUrl,  // Updated with Cloudinary URL
       experiences,
       education,
       skills,
@@ -448,10 +484,14 @@ exports.updateAllUserProfile = async (req, res) => {
       updatedAt: new Date(),
     };
 
-    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
-      new: true,
-    });
+    // Update the user in the database
+    const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true });
 
+    if (!updatedUser) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    // Send the updated user profile in the response
     res.status(200).json({
       success: true,
       message: "Profile updated successfully",
