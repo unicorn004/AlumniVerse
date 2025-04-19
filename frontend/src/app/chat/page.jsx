@@ -13,6 +13,8 @@ import axios from "axios"
 import { io } from "socket.io-client"
 import { jwtDecode } from "jwt-decode"
 
+import {API_BASE_URL} from "../../routes/apiRoute"
+
 export default function ChatPage() {
   const router = useRouter()
   const { toast } = useToast()
@@ -60,10 +62,10 @@ export default function ChatPage() {
       try {
         console.log("Fetching user rooms and users...")
         const [roomsRes, usersRes] = await Promise.all([
-          axios.get("http://localhost:5000/api/chat/getUserRooms", {
+          axios.get(`${API_BASE_URL}/api/chat/getUserRooms`, {
             headers: { Authorization: `Bearer ${token}` }
           }),
-          axios.get("http://localhost:5000/api/users/", {
+          axios.get(`${API_BASE_URL}/api/users/`, {
             headers: { Authorization: `Bearer ${token}` }
           })
         ])
@@ -92,13 +94,13 @@ export default function ChatPage() {
             // Create new room with this user
             try {
               const response = await axios.post(
-                "http://localhost:5000/api/chat/createRoom",
+                `${API_BASE_URL}/api/chat/createRoom`,
                 { friend_id: recipient.id },
                 { headers: { Authorization: `Bearer ${token}` } }
               )
               console.log("Room created:", response.data)
               // Refresh rooms after creating new one
-              const updatedRoomsRes = await axios.get("http://localhost:5000/api/chat/getUserRooms", {
+              const updatedRoomsRes = await axios.get(`${API_BASE_URL}/api/chat/getUserRooms`, {
                 headers: { Authorization: `Bearer ${token}` }
               })
               setRooms(updatedRoomsRes.data.rooms)
@@ -157,7 +159,7 @@ export default function ChatPage() {
     }
 
     console.log("Connecting socket...")
-    const newSocket = io("http://localhost:5000", {
+    const newSocket = io(`${API_BASE_URL}`, {
       auth: { token: `Bearer ${token}` },
       withCredentials: true,
       transports: ["polling", "websocket"]
@@ -206,14 +208,14 @@ export default function ChatPage() {
     console.log("Creating room with user:", friendId)
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/chat/createRoom",
+        `${API_BASE_URL}/api/chat/createRoom`,
         { friend_id: friendId },
         { headers: { Authorization: `Bearer ${token}` } }
       )
       console.log("Room created:", response.data)
       
       // Refresh rooms after creating new one
-      const updatedRoomsRes = await axios.get("http://localhost:5000/api/chat/getUserRooms", {
+      const updatedRoomsRes = await axios.get(`${API_BASE_URL}/api/chat/getUserRooms`, {
         headers: { Authorization: `Bearer ${token}` }
       })
       setRooms(updatedRoomsRes.data.rooms)
