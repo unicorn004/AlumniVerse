@@ -23,7 +23,7 @@ const server = http.createServer(app);
 // CORS setup for Express
 app.use(cors({
   // origin: process.env.CORS_ALLOWED_ORIGIN,
-  origin: "https://google.com",
+  origin:"*",
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   credentials: true
 }));
