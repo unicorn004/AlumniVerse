@@ -471,7 +471,7 @@ export default function ChatPage() {
                     className="flex-1"
                     // disabled={!isConnected}
                   />
-                  <Button type="submit" size="icon" disabled={!newMessage.trim() || !isConnected}>
+                  <Button type="submit" size="icon" disabled={!newMessage.trim()}>
                     <Send className="h-4 w-4" />
                   </Button>
                 </form>
