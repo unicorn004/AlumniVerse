@@ -28,7 +28,7 @@ export default function ChatPage() {
   
   // Socket.io state
   const [socket, setSocket] = useState(null)
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected, setIsConnected] = useState(true)
   const [rooms, setRooms] = useState([])
   const [users, setUsers] = useState([])
   const [messages, setMessages] = useState([])
@@ -167,7 +167,7 @@ export default function ChatPage() {
 
     newSocket.on("connect", () => {
       console.log("Socket connected:", newSocket.id)
-      setIsConnected(true)
+      // setIsConnected(true)
       newSocket.emit("joinRoom", selectedRoom._id)
     })
 
@@ -192,7 +192,7 @@ export default function ChatPage() {
 
     newSocket.on("disconnect", () => {
       console.log("Socket disconnected.")
-      setIsConnected(false)
+      // setIsConnected(false)
     })
 
     setSocket(newSocket)
