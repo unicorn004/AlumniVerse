@@ -67,13 +67,15 @@ exports.deleteAchievement = async (req, res) => {
 
 exports.getAllAchievements = async (req, res) => {
   try {
-    console.log("hello there");
+    //console.log("hello there");
     const users = await User.find({}, {
+      _id: 1,
       fullName: 1,
       jobTitle: 1,
       company: 1,
       graduationYear: 1,
-      achievements: 1
+      achievements: 1,
+      profileImage: 1
     });
 
     const allAchievements = [];
@@ -82,10 +84,12 @@ exports.getAllAchievements = async (req, res) => {
       user.achievements.forEach(achievement => {
         allAchievements.push({
           ...achievement.toObject(), // Convert Mongoose subdocument to plain object
+          userId: user._id,
           userName: user.fullName,
           jobTitle: user.jobTitle,
           company: user.company,
-          graduationYear: user.graduationYear
+          graduationYear: user.graduationYear,
+          profileImage: user.profileImage
         });
       });
     });

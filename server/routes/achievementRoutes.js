@@ -13,9 +13,14 @@ const { upload } = require('../utils/cloudinary');
 const router = express.Router();
 
 // Alumni only routes
+router.get(
+  "/allAchievements",
+  protect,
+  getAllAchievements
+);
 router.get('/me', protect, isAlumni, getMyAchievements);
 router.post('/', protect, isAlumni, upload.single('image'), addAchievement); 
 router.delete('/:achvId', protect, isAlumni, deleteAchievement);
-router.get('/allAchievements', protect, getAllAchievements);
+
 
 module.exports = router;

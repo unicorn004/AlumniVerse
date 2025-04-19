@@ -49,6 +49,8 @@ import {
 } from "@/src/components/ui/select";
 import AppLayout from "@/src/components/app-layout";
 
+import {getUserProfile} from "../../../api/user"
+
 export default function ProfilePage() {
   const router = useRouter();
   const params = useParams();
@@ -103,115 +105,119 @@ export default function ProfilePage() {
         } else {
           // Mock data for other profiles
           // In a real app, you would fetch from an API based on the ID
-          const mockProfiles = [
-            {
-              id: "1",
-              name: "Jane Smith",
-              role: "alumni",
-              graduationYear: "2018",
-              degree: "Computer Science",
-              jobTitle: "Senior Software Engineer",
-              company: "Tech Innovations Inc.",
-              location: "San Francisco, CA",
-              email: "jane.smith@example.com",
-              bio: "Passionate about building scalable web applications and mentoring junior developers.",
-              profileImage: "/placeholder.svg?height=128&width=128",
-              skills: ["JavaScript", "React", "Node.js", "AWS", "GraphQL"],
-              experiences: [
-                {
-                  jobTitle: "Senior Software Engineer",
-                  company: "Tech Innovations Inc.",
-                  description:
-                    "Leading the frontend team for the company's main product.",
-                  startDate: "2020-06",
-                  endDate: "",
-                  current: true,
-                },
-                {
-                  jobTitle: "Software Engineer",
-                  company: "WebDev Solutions",
-                  description:
-                    "Developed and maintained client websites and applications.",
-                  startDate: "2018-01",
-                  endDate: "2020-05",
-                  current: false,
-                },
-              ],
-              education: [
-                {
-                  degree: "BS in Computer Science",
-                  institution: "University of Technology",
-                  startDate: "2014-09",
-                  endDate: "2018-05",
-                  current: false,
-                },
-              ],
-              achievements: [
-                {
-                  title: "Innovation Award",
-                  type: "Professional",
-                  description:
-                    "Received for developing a new algorithm that improved system performance by 40%.",
-                  date: "2021",
-                  image: "/placeholder.svg?height=100&width=100",
-                },
-              ],
-            },
-            {
-              id: "2",
-              name: "John Doe",
-              role: "alumni",
-              graduationYear: "2020",
-              degree: "Electrical Engineering",
-              jobTitle: "Hardware Engineer",
-              company: "ElectroTech Corp",
-              location: "Boston, MA",
-              email: "john.doe@example.com",
-              bio: "Specializing in embedded systems and IoT devices.",
-              profileImage: "/placeholder.svg?height=128&width=128",
-              skills: ["C++", "Embedded Systems", "PCB Design", "IoT", "FPGA"],
-              experiences: [
-                {
-                  jobTitle: "Hardware Engineer",
-                  company: "ElectroTech Corp",
-                  description: "Designing and testing new IoT devices.",
-                  startDate: "2020-08",
-                  endDate: "",
-                  current: true,
-                },
-              ],
-              education: [
-                {
-                  degree: "MS in Electrical Engineering",
-                  institution: "Tech University",
-                  startDate: "2018-09",
-                  endDate: "2020-05",
-                  current: false,
-                },
-                {
-                  degree: "BS in Electrical Engineering",
-                  institution: "State University",
-                  startDate: "2014-09",
-                  endDate: "2018-05",
-                  current: false,
-                },
-              ],
-              achievements: [
-                {
-                  title: "Best Thesis Award",
-                  type: "Academic",
-                  description:
-                    "Awarded for outstanding master's thesis on energy-efficient IoT devices.",
-                  date: "2020",
-                  image: "/placeholder.svg?height=100&width=100",
-                },
-              ],
-            },
-          ];
+          console.log("ID TO SEARCH BY = ",params.id);
+          const response = await getUserProfile(params.id);
+          console.log("USER PROFILE by id = ",response);
+          // const mockProfiles = [
+          //   {
+          //     id: "1",
+          //     name: "Jane Smith",
+          //     role: "alumni",
+          //     graduationYear: "2018",
+          //     degree: "Computer Science",
+          //     jobTitle: "Senior Software Engineer",
+          //     company: "Tech Innovations Inc.",
+          //     location: "San Francisco, CA",
+          //     email: "jane.smith@example.com",
+          //     bio: "Passionate about building scalable web applications and mentoring junior developers.",
+          //     profileImage: "/placeholder.svg?height=128&width=128",
+          //     skills: ["JavaScript", "React", "Node.js", "AWS", "GraphQL"],
+          //     experiences: [
+          //       {
+          //         jobTitle: "Senior Software Engineer",
+          //         company: "Tech Innovations Inc.",
+          //         description:
+          //           "Leading the frontend team for the company's main product.",
+          //         startDate: "2020-06",
+          //         endDate: "",
+          //         current: true,
+          //       },
+          //       {
+          //         jobTitle: "Software Engineer",
+          //         company: "WebDev Solutions",
+          //         description:
+          //           "Developed and maintained client websites and applications.",
+          //         startDate: "2018-01",
+          //         endDate: "2020-05",
+          //         current: false,
+          //       },
+          //     ],
+          //     education: [
+          //       {
+          //         degree: "BS in Computer Science",
+          //         institution: "University of Technology",
+          //         startDate: "2014-09",
+          //         endDate: "2018-05",
+          //         current: false,
+          //       },
+          //     ],
+          //     achievements: [
+          //       {
+          //         title: "Innovation Award",
+          //         type: "Professional",
+          //         description:
+          //           "Received for developing a new algorithm that improved system performance by 40%.",
+          //         date: "2021",
+          //         image: "/placeholder.svg?height=100&width=100",
+          //       },
+          //     ],
+          //   },
+          //   {
+          //     id: "2",
+          //     name: "John Doe",
+          //     role: "alumni",
+          //     graduationYear: "2020",
+          //     degree: "Electrical Engineering",
+          //     jobTitle: "Hardware Engineer",
+          //     company: "ElectroTech Corp",
+          //     location: "Boston, MA",
+          //     email: "john.doe@example.com",
+          //     bio: "Specializing in embedded systems and IoT devices.",
+          //     profileImage: "/placeholder.svg?height=128&width=128",
+          //     skills: ["C++", "Embedded Systems", "PCB Design", "IoT", "FPGA"],
+          //     experiences: [
+          //       {
+          //         jobTitle: "Hardware Engineer",
+          //         company: "ElectroTech Corp",
+          //         description: "Designing and testing new IoT devices.",
+          //         startDate: "2020-08",
+          //         endDate: "",
+          //         current: true,
+          //       },
+          //     ],
+          //     education: [
+          //       {
+          //         degree: "MS in Electrical Engineering",
+          //         institution: "Tech University",
+          //         startDate: "2018-09",
+          //         endDate: "2020-05",
+          //         current: false,
+          //       },
+          //       {
+          //         degree: "BS in Electrical Engineering",
+          //         institution: "State University",
+          //         startDate: "2014-09",
+          //         endDate: "2018-05",
+          //         current: false,
+          //       },
+          //     ],
+          //     achievements: [
+          //       {
+          //         title: "Best Thesis Award",
+          //         type: "Academic",
+          //         description:
+          //           "Awarded for outstanding master's thesis on energy-efficient IoT devices.",
+          //         date: "2020",
+          //         image: "/placeholder.svg?height=100&width=100",
+          //       },
+          //     ],
+          //   },
+          // ];
 
-          const foundProfile = mockProfiles.find((p) => p.id === params.id);
+          //const foundProfile = mockProfiles.find((p) => p.id === params.id);
+          const foundProfile = response._id === params.id 
           if (foundProfile) {
-            setProfile(foundProfile);
+            setProfile(response);
           } else {
             // If profile not found, redirect to search
             router.push("/search");

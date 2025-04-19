@@ -59,10 +59,6 @@ const apiCall = async (
 };
 
 
-export const updateUserProfile = async (body) => {
-  return await apiCall(API_ROUTES.UPDATE_USER_PROFILE(), "PUT", body);
-};
-
-export const getUserProfile = async (id) => {
-  return await apiCall(API_ROUTES.GET_USER_PROFILE(id));
+export const getAllAchievements = async (body) => {
+  return await apiCall(API_ROUTES.GET_ALL_ACHIEVEMENTS()); // GET REQUEST
 };
