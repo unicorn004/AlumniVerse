@@ -3,6 +3,7 @@ const { cloudinary, uploadToCloudinary } = require('../utils/cloudinary');
 // GET /users?branch=IT&graduationYear=2020&location=Delhi&page=1&limit=10
 exports.getAllUsers = async (req, res) => {
   try {
+    console.log("GET ALL USER CALLED");
     const filters = {};
     if (req.query.role) filters.role = req.query.role;
     if (req.query.branch) filters.branch = req.query.branch;

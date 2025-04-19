@@ -66,3 +66,7 @@ export const updateUserProfile = async (body) => {
 export const getUserProfile = async (id) => {
   return await apiCall(API_ROUTES.GET_USER_PROFILE(id));
 };
+
+export const getAllUsers = async (body) => {
+  return await apiCall(API_ROUTES.GET_ALL_USERS());
+};

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { Loader2, Search, Filter, MapPin, Briefcase, GraduationCap } from "lucide-react"
+import { Loader2, Search, Filter, MapPin, Briefcase, GraduationCap, X, ChevronRight } from "lucide-react"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
 import { Card, CardContent, CardFooter } from "@/src/components/ui/card"
@@ -12,75 +12,7 @@ import { Badge } from "@/src/components/ui/badge"
 import { Separator } from "@/src/components/ui/separator"
 import AppLayout from "@/src/components/app-layout"
 
-// Mock alumni data
-const mockAlumni = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    avatar: "/placeholder.svg?height=100&width=100",
-    graduationYear: "2018",
-    branch: "Computer Science",
-    location: "San Francisco, CA",
-    currentJob: "Senior Software Engineer at Google",
-    bio: "Passionate about AI and machine learning. Working on cutting-edge technology at Google.",
-    skills: ["JavaScript", "Python", "Machine Learning", "React", "Node.js"],
-  },
-  {
-    id: 2,
-    name: "David Wilson",
-    avatar: "/placeholder.svg?height=100&width=100",
-    graduationYear: "2015",
-    branch: "Business Administration",
-    location: "New York, NY",
-    currentJob: "Product Manager at Amazon",
-    bio: "Experienced product manager with a passion for creating user-centric products.",
-    skills: ["Product Management", "UX Design", "Market Research", "Agile", "Leadership"],
-  },
-  {
-    id: 3,
-    name: "Priya Sharma",
-    avatar: "/placeholder.svg?height=100&width=100",
-    graduationYear: "2020",
-    branch: "Electrical Engineering",
-    location: "Seattle, WA",
-    currentJob: "Hardware Engineer at Microsoft",
-    bio: "Working on next-generation hardware solutions at Microsoft.",
-    skills: ["Circuit Design", "PCB Layout", "FPGA", "Embedded Systems", "C++"],
-  },
-  {
-    id: 4,
-    name: "Michael Chen",
-    avatar: "/placeholder.svg?height=100&width=100",
-    graduationYear: "2019",
-    branch: "Computer Science",
-    location: "Austin, TX",
-    currentJob: "Full Stack Developer at IBM",
-    bio: "Building enterprise applications and cloud solutions at IBM.",
-    skills: ["JavaScript", "React", "Node.js", "AWS", "Docker"],
-  },
-  {
-    id: 5,
-    name: "Jessica Lee",
-    avatar: "/placeholder.svg?height=100&width=100",
-    graduationYear: "2017",
-    branch: "Psychology",
-    location: "Chicago, IL",
-    currentJob: "UX Researcher at Facebook",
-    bio: "Helping create better user experiences through research and testing.",
-    skills: ["User Research", "Usability Testing", "Data Analysis", "Prototyping", "Interviewing"],
-  },
-  {
-    id: 6,
-    name: "Raj Patel",
-    avatar: "/placeholder.svg?height=100&width=100",
-    graduationYear: "2021",
-    branch: "Mechanical Engineering",
-    location: "Detroit, MI",
-    currentJob: "Design Engineer at Tesla",
-    bio: "Working on innovative automotive designs at Tesla.",
-    skills: ["CAD", "3D Modeling", "Simulation", "Prototyping", "Manufacturing"],
-  },
-]
+import { getAllUsers } from "../../api/user"
 
 // Generate graduation years for filter
 const currentYear = new Date().getFullYear()
@@ -89,7 +21,7 @@ const graduationYears = Array.from({ length: 10 }, (_, i) => (currentYear - i).t
 // Branches for filter
 const branches = [
   "Computer Science",
-  "Business Administration",
+  "Business Administration", 
   "Electrical Engineering",
   "Mechanical Engineering",
   "Psychology",
@@ -98,16 +30,27 @@ const branches = [
 
 export default function SearchPage() {
   const router = useRouter()
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [alumni, setAlumni] = useState(mockAlumni)
-  const [filteredAlumni, setFilteredAlumni] = useState(mockAlumni)
+  const [alumni, setAlumni] = useState([])
+  const [filteredAlumni, setFilteredAlumni] = useState([])
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
 
   // Filter states
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedYear, setSelectedYear] = useState<string>("")
-  const [selectedBranch, setSelectedBranch] = useState<string>("")
-  const [selectedLocation, setSelectedLocation] = useState<string>("")
+  const [selectedYear, setSelectedYear] = useState("")
+  const [selectedBranch, setSelectedBranch] = useState("")
+  const [selectedLocation, setSelectedLocation] = useState("")
+  const [activeFiltersCount, setActiveFiltersCount] = useState(0)
+
+  useEffect(() => {
+    // Count active filters
+    let count = 0
+    if (selectedYear && selectedYear !== "all") count++
+    if (selectedBranch && selectedBranch !== "all") count++
+    if (selectedLocation) count++
+    setActiveFiltersCount(count)
+  }, [selectedYear, selectedBranch, selectedLocation])
 
   useEffect(() => {
     // Check if user is logged in
@@ -118,7 +61,37 @@ export default function SearchPage() {
     }
 
     setUser(JSON.parse(userData))
-    setIsLoading(false)
+    
+    // Fetch alumni data
+    const fetchAlumni = async () => {
+      try {
+        const users = await getAllUsers()
+        
+        // Filter only alumni and map to required format
+        const alumniUsers = users
+          .filter(user => user.role === "alumni")
+          .map(user => ({
+            id: user._id,
+            name: user.fullName || "Anonymous Alumni",
+            avatar: user.profileImage || "/placeholder.svg?height=100&width=100",
+            graduationYear: user.graduationYear?.toString() || "N/A",
+            branch: user.branch || "Not Specified",
+            location: user.location || "Not Specified",
+            currentJob: user.jobTitle || "Not Specified",
+            bio: user.bio || "No bio available",
+            skills: user.skills || [],
+          }))
+        
+        setAlumni(alumniUsers)
+        setFilteredAlumni(alumniUsers)
+        setIsLoading(false)
+      } catch (error) {
+        console.error("Error fetching alumni data:", error)
+        setIsLoading(false)
+      }
+    }
+
+    fetchAlumni()
   }, [router])
 
   // Apply filters
@@ -138,18 +111,20 @@ export default function SearchPage() {
     }
 
     // Apply graduation year filter
-    if (selectedYear) {
+    if (selectedYear && selectedYear !== "all") {
       results = results.filter((person) => person.graduationYear === selectedYear)
     }
 
     // Apply branch filter
-    if (selectedBranch) {
+    if (selectedBranch && selectedBranch !== "all") {
       results = results.filter((person) => person.branch === selectedBranch)
     }
 
     // Apply location filter
     if (selectedLocation) {
-      results = results.filter((person) => person.location.toLowerCase().includes(selectedLocation.toLowerCase()))
+      results = results.filter((person) => 
+        person.location.toLowerCase().includes(selectedLocation.toLowerCase())
+      )
     }
 
     setFilteredAlumni(results)
@@ -164,161 +139,178 @@ export default function SearchPage() {
   }
 
   // Navigate to profile page
-  const viewProfile = (id: number) => {
+  const viewProfile = (id) => {
     router.push(`/profile/${id}`)
   }
 
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+          <p className="text-muted-foreground">Loading alumni directory...</p>
+        </div>
       </div>
     )
   }
 
   return (
     <AppLayout>
-      <div className="container py-6">
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold mb-2">Search Alumni</h1>
-          <p className="text-muted-foreground">
-            Find and connect with alumni based on graduation year, branch, location, or interests
+      <div className="container py-8 max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="mb-10 text-center sm:text-left">
+          <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-primary-foreground bg-clip-text text-transparent">Alumni Directory</h1>
+          <p className="text-muted-foreground max-w-2xl">
+            Connect with fellow graduates, discover career paths, and build your professional network with alumni from your field and beyond.
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-[250px_1fr]">
-          <div className="space-y-6">
-            <div className="rounded-lg border p-4">
-              <h2 className="font-medium mb-4 flex items-center gap-2">
-                <Filter className="h-4 w-4" />
+        {/* Mobile Filters Toggle */}
+        <div className="block md:hidden mb-6">
+          <Button 
+            variant="outline" 
+            className="w-full flex items-center justify-between"
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+          >
+            <span className="flex items-center gap-2">
+              <Filter className="h-4 w-4" />
+              Filters
+              {activeFiltersCount > 0 && (
+                <Badge variant="secondary" className="ml-2">{activeFiltersCount}</Badge>
+              )}
+            </span>
+            <ChevronRight className={`h-4 w-4 transition-transform ${showMobileFilters ? 'rotate-90' : ''}`} />
+          </Button>
+          
+          {showMobileFilters && (
+            <div className="mt-4 rounded-lg border p-4 shadow-sm">
+              <FiltersContent 
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+                selectedBranch={selectedBranch}
+                setSelectedBranch={setSelectedBranch}
+                selectedLocation={selectedLocation}
+                setSelectedLocation={setSelectedLocation}
+                resetFilters={resetFilters}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-[280px_1fr]">
+          {/* Desktop Filters */}
+          <div className="hidden md:block space-y-6">
+            <div className="rounded-xl border p-5 shadow-sm bg-card sticky top-24">
+              <h2 className="font-semibold mb-5 flex items-center gap-2 text-lg border-b pb-3">
+                <Filter className="h-5 w-5" />
                 <span>Filters</span>
+                {activeFiltersCount > 0 && (
+                  <Badge variant="secondary" className="ml-auto">{activeFiltersCount}</Badge>
+                )}
               </h2>
 
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Graduation Year</label>
-                  <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Years</SelectItem>
-                      {graduationYears.map((year) => (
-                        <SelectItem key={year} value={year}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Branch/Major</label>
-                  <Select value={selectedBranch} onValueChange={setSelectedBranch}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select branch" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Branches</SelectItem>
-                      {branches.map((branch) => (
-                        <SelectItem key={branch} value={branch}>
-                          {branch}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Location</label>
-                  <Input
-                    placeholder="City or Country"
-                    value={selectedLocation}
-                    onChange={(e) => setSelectedLocation(e.target.value)}
-                  />
-                </div>
-
-                <Button variant="outline" className="w-full" onClick={resetFilters}>
-                  Reset Filters
-                </Button>
-              </div>
+              <FiltersContent 
+                selectedYear={selectedYear}
+                setSelectedYear={setSelectedYear}
+                selectedBranch={selectedBranch}
+                setSelectedBranch={setSelectedBranch}
+                selectedLocation={selectedLocation}
+                setSelectedLocation={setSelectedLocation}
+                resetFilters={resetFilters}
+              />
             </div>
           </div>
 
           <div className="space-y-6">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                placeholder="Search by name, job title, skills..."
-                className="pl-10"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            <div className="rounded-md bg-muted px-4 py-3">
-              <p className="text-sm">
-                Found <strong>{filteredAlumni.length}</strong> alumni
-                {(searchQuery || selectedYear || selectedBranch || selectedLocation) && " matching your filters"}
-              </p>
+            <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name, job title, skills..."
+                  className="pl-10 py-6 h-auto"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button 
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+              <div className="shrink-0 bg-muted rounded-md flex items-center px-4 h-10 sm:h-full justify-center">
+                <p className="text-sm whitespace-nowrap">
+                  <strong>{filteredAlumni.length}</strong> alumni found
+                </p>
+              </div>
             </div>
 
             {filteredAlumni.length === 0 ? (
-              <div className="rounded-lg border border-dashed p-8 text-center">
-                <h3 className="font-medium">No results found</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Try adjusting your search or filters to find what you're looking for
-                </p>
-                <Button variant="outline" className="mt-4" onClick={resetFilters}>
-                  Clear Filters
-                </Button>
+              <div className="rounded-xl border border-dashed p-12 text-center">
+                <div className="max-w-md mx-auto">
+                  <h3 className="font-medium text-lg mb-2">No matches found</h3>
+                  <p className="text-muted-foreground mb-6">
+                    We couldn't find any alumni matching your current search criteria. Try adjusting your filters or search terms.
+                  </p>
+                  <Button variant="default" onClick={resetFilters}>
+                    Clear All Filters
+                  </Button>
+                </div>
               </div>
             ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredAlumni.map((person) => (
-                  <Card key={person.id} className="overflow-hidden">
+                  <Card key={person.id} className="overflow-hidden border rounded-xl transition-all duration-300 hover:shadow-md hover:border-primary/20 group">
                     <CardContent className="p-0">
-                      <div className="bg-muted h-24 flex items-center justify-center">
-                        <Avatar className="h-20 w-20 border-4 border-background">
+                      <div className="bg-gradient-to-r from-primary/10 to-primary/5 h-28 flex items-center justify-center">
+                        <Avatar className="h-24 w-24 border-4 border-background shadow-md transition-transform group-hover:scale-105">
                           <AvatarImage src={person.avatar || "/placeholder.svg"} alt={person.name} />
-                          <AvatarFallback>{person.name.charAt(0)}</AvatarFallback>
+                          <AvatarFallback className="bg-primary/10 text-primary font-medium text-xl">
+                            {person.name.charAt(0)}
+                          </AvatarFallback>
                         </Avatar>
                       </div>
-                      <div className="p-4">
-                        <h3 className="font-bold text-lg">{person.name}</h3>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                          <Briefcase className="h-3 w-3" />
-                          <span>{person.currentJob}</span>
+                      <div className="p-5">
+                        <h3 className="font-bold text-xl group-hover:text-primary transition-colors">{person.name}</h3>
+                        <div className="flex items-start gap-2 text-sm text-muted-foreground mt-2">
+                          <Briefcase className="h-4 w-4 mt-0.5 shrink-0 text-primary/70" />
+                          <span className="line-clamp-1">{person.currentJob}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
-                          <span>{person.location}</span>
+                        <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-primary/70" />
+                          <span className="line-clamp-1">{person.location}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <GraduationCap className="h-3 w-3" />
+                        <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <GraduationCap className="h-4 w-4 mt-0.5 shrink-0 text-primary/70" />
                           <span>
                             {person.branch}, {person.graduationYear}
                           </span>
                         </div>
-                        <Separator className="my-3" />
-                        <p className="text-sm line-clamp-2">{person.bio}</p>
-                        <div className="flex flex-wrap gap-1 mt-3">
+                        <Separator className="my-4" />
+                        <p className="text-sm line-clamp-3 text-muted-foreground">{person.bio}</p>
+                        <div className="flex flex-wrap gap-1.5 mt-4">
                           {person.skills.slice(0, 3).map((skill) => (
-                            <Badge key={skill} variant="secondary" className="text-xs">
+                            <Badge key={skill} variant="secondary" className="text-xs py-1 font-normal">
                               {skill}
                             </Badge>
                           ))}
                           {person.skills.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
+                            <Badge variant="outline" className="text-xs py-1">
                               +{person.skills.length - 3} more
                             </Badge>
                           )}
                         </div>
                       </div>
                     </CardContent>
-                    <CardFooter className="p-4 pt-0">
-                      <Button variant="outline" className="w-full" onClick={() => viewProfile(person.id)}>
+                    <CardFooter className="p-5 pt-0">
+                      <Button 
+                        className="w-full gap-1 group-hover:bg-primary group-hover:text-primary-foreground transition-colors" 
+                        variant="outline" 
+                        onClick={() => viewProfile(person.id)}
+                      >
                         View Profile
+                        <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                       </Button>
                     </CardFooter>
                   </Card>
@@ -329,5 +321,71 @@ export default function SearchPage() {
         </div>
       </div>
     </AppLayout>
+  )
+}
+
+// Extracted filter component to avoid duplication
+function FiltersContent({ 
+  selectedYear, 
+  setSelectedYear, 
+  selectedBranch, 
+  setSelectedBranch, 
+  selectedLocation, 
+  setSelectedLocation, 
+  resetFilters 
+}) {
+  return (
+    <div className="space-y-5">
+      <div className="space-y-3">
+        <label className="text-sm font-medium">Graduation Year</label>
+        <Select value={selectedYear} onValueChange={setSelectedYear}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="All years" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Years</SelectItem>
+            {graduationYears.map((year) => (
+              <SelectItem key={year} value={year}>
+                {year}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-3">
+        <label className="text-sm font-medium">Field of Study</label>
+        <Select value={selectedBranch} onValueChange={setSelectedBranch}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="All fields" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Fields</SelectItem>
+            {branches.map((branch) => (
+              <SelectItem key={branch} value={branch}>
+                {branch}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-3">
+        <label className="text-sm font-medium">Location</label>
+        <Input
+          placeholder="City, state or country"
+          value={selectedLocation}
+          onChange={(e) => setSelectedLocation(e.target.value)}
+        />
+      </div>
+
+      <Button 
+        variant="outline" 
+        className="w-full border-dashed" 
+        onClick={resetFilters}
+      >
+        Reset All Filters
+      </Button>
+    </div>
   )
 }
