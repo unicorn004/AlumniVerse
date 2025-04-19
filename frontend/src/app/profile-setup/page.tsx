@@ -426,6 +426,7 @@ export default function ProfileSetupPage() {
       description: "",
       year: "",
       image: null,
+      imageFile: null,
     })
     calculateProgress()
   }
@@ -451,114 +452,6 @@ export default function ProfileSetupPage() {
     else if (activeTab === "education") setActiveTab("experience")
     else if (activeTab === "experience") setActiveTab("basic")
   }
-
-  // Handle form submission
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault()
-  //   setError("")
-  //   setIsLoading(true)
-
-  //   try {// need this as a form data
-  //     const body = {
-  //       "fullName" : basicInfo.fullName,
-  //       "graduationYear" : basicInfo.graduationYear,
-  //       "role" : user.role,
-  //       "branch" : basicInfo.branch,
-  //       "jobTitle" : basicInfo.currentJob,
-  //       "location" : basicInfo.location,
-  //       "bio" : basicInfo.bio,
-  //       "profileImage" : profileImage, // make sure this is correct
-  //       "linkedIn" : basicInfo.linkedinUrl,
-  //       "resume" : resumeFile, // make sure it is correct
-  //       "experiences" : experiences,
-  //       "education" : education,
-  //       "skills" : skills,
-  //       "achievements" : achievements
-  //     }
-  //     const response = await updateUserProfile(body);
-      
-
-  //     // Update user data in localStorage
-  //     const updatedUser = {
-  //       ...user,
-  //       ...basicInfo,
-  //       isProfileComplete: true,
-  //       profileImage,
-  //       hasResume: !!resumeFile,
-  //       skills,
-  //       experiences,
-  //       education,
-  //       achievements,
-  //     }
-
-  //     //localStorage.setItem("user", JSON.stringify(updatedUser))
-  //     if(response){
-  //       console.log("prof data response = ",response);
-  //       localStorage.setItem("user", JSON.stringify(response.data))
-  //     }
-      
-
-  //     // Redirect to home page
-  //     router.push("/home")
-  //   } catch (err) {
-  //     setError("Failed to save profile. Please try again.")
-  //   } finally {
-  //     setIsLoading(false)
-  //   }
-  // }
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   setError("");
-  //   setIsLoading(true);
-  
-  //   try {
-  //     const formData = new FormData();
-  
-  //     // Basic fields
-  //     formData.append("fullName", basicInfo.fullName);
-  //     formData.append("graduationYear", basicInfo.graduationYear.toString());
-  //     formData.append("role", user.role);
-  //     formData.append("branch", basicInfo.branch);
-  //     formData.append("jobTitle", basicInfo.currentJob);
-  //     formData.append("location", basicInfo.location);
-  //     formData.append("bio", basicInfo.bio);
-  //     formData.append("linkedIn", basicInfo.linkedinUrl);
-  
-  //     // Files
-  //     if (profileImageFile instanceof File) {
-  //       formData.append("profileImage", profileImageFile);
-  //     } else if (typeof profileImage === "string") {
-  //       console.log("THIS IS UNEXPECTED IMAGE URL ERROR IN PROFILE SETUP")
-  //       formData.append("profileImage", profileImage); // Send URL separately if it's already uploaded
-  //     }
-  
-  //     if (resumeFile) {
-  //       formData.append("resume", resumeFile);
-  //     }
-  
-  //     // Arrays or nested data: stringify
-  //     formData.append("experiences", JSON.stringify(experiences));
-  //     formData.append("education", JSON.stringify(education));
-  //     formData.append("skills", JSON.stringify(skills));
-  //     formData.append("achievements", JSON.stringify(achievements));
-  
-  //     console.log("Formdata contains = ",formData);
-  //     // Send the FormData
-  //     const response = await updateUserProfile(formData); // this must support FormData
-  
-  //     // Update user data in localStorage
-  //     if (response) {
-  //       console.log("prof data response = ", response);
-  //       localStorage.setItem("user", JSON.stringify(response.data));
-  //     }
-  
-  //     router.push("/home");
-  //   } catch (err) {
-  //     setError("Failed to save profile. Please try again.");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

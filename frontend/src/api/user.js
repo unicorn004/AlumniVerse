@@ -63,6 +63,10 @@ export const updateUserProfile = async (body) => {
   return await apiCall(API_ROUTES.UPDATE_USER_PROFILE(), "PUT", body);
 };
 
+export const updateUserProfileImageOnly = async (body) => {
+  return await apiCall(API_ROUTES.UPDATE_USER_PROFILE_IMAGE_ONLY(), "PUT", body);
+};
+
 export const getUserProfile = async (id) => {
   return await apiCall(API_ROUTES.GET_USER_PROFILE(id));
 };
