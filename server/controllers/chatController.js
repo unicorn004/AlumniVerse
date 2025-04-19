@@ -50,7 +50,8 @@ const handleSocketConnections = (io) => {
     if (!token) {
       return next(new Error("Authentication token missing"));
     }
-
+    console.log("from socket" + token);
+    
     try {
       const decoded = jwt.verify(token.replace("Bearer ", ""), process.env.JWT_SECRET);
       socket.user = decoded;

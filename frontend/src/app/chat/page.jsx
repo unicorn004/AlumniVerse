@@ -1,33 +1,66 @@
-"use client";
-import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
-import { Send, PlusCircle, MessageSquare } from "lucide-react";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import { jwtDecode } from "jwt-decode";
+"use client"
 
-const ChatApp = () => {
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [rooms, setRooms] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
+import { useState, useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
+import { Loader2, Send, Search, ArrowLeft, MessageSquare, PlusCircle } from "lucide-react"
+import { Button } from "@/src/components/ui/button"
+import { Input } from "@/src/components/ui/input"
+import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
+import { ScrollArea } from "@/src/components/ui/scroll-area"
+import { useToast } from "@/src/hooks/use-toast"
+import { useMobile } from "@/src/hooks/use-mobile"
+import AppLayout from "@/src/components/app-layout"
+import axios from "axios"
+import { io } from "socket.io-client"
+import { jwtDecode } from "jwt-decode"
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const decoded = token ? jwtDecode(token) : null;
-  const currentUserId = decoded?.id;
+export default function ChatPage() {
+  const router = useRouter()
+  const { toast } = useToast()
+  const isMobile = useMobile()
+  const messagesEndRef = useRef(null)
+
+  const [user, setUser] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [newMessage, setNewMessage] = useState("")
+  const [showSidebar, setShowSidebar] = useState(!isMobile)
+  
+  // Socket.io state
+  const [socket, setSocket] = useState(null)
+  const [isConnected, setIsConnected] = useState(false)
+  const [rooms, setRooms] = useState([])
+  const [users, setUsers] = useState([])
+  const [messages, setMessages] = useState([])
+  const [selectedRoom, setSelectedRoom] = useState(null)
+  const [showUsersDropdown, setShowUsersDropdown] = useState(false)
+  
+  // Get token and user ID
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
+  const decoded = token ? jwtDecode(token) : null
+  const currentUserId = decoded?.id
+
+  // Filter contacts based on search query
+  const filteredRooms = searchQuery 
+    ? rooms.filter(room => {
+        const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
+        return otherUser.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+      })
+    : rooms
 
   useEffect(() => {
+    // Check if user is logged in
     if (!token) {
-      console.warn("No token found. Redirecting to login...");
-      return router.push("/login");
+      console.warn("No token found. Redirecting to login...")
+      router.push("/login")
+      return
     }
 
+    // Fetch user data, rooms and users
     const fetchData = async () => {
-      setLoading(true);
+      setIsLoading(true)
       try {
-        console.log("Fetching user rooms and users...");
+        console.log("Fetching user rooms and users...")
         const [roomsRes, usersRes] = await Promise.all([
           axios.get("http://localhost:5000/api/chat/getUserRooms", {
             headers: { Authorization: `Bearer ${token}` }
@@ -35,278 +68,433 @@ const ChatApp = () => {
           axios.get("http://localhost:5000/api/users/", {
             headers: { Authorization: `Bearer ${token}` }
           })
-        ]);
-        console.log("Fetched rooms:", roomsRes.data.rooms);
-        console.log("Fetched users:", usersRes.data.users);
+        ])
 
-        setRooms(roomsRes.data.rooms);
-        setUsers(usersRes.data.users);
+        console.log("Fetched rooms:", roomsRes.data.rooms)
+        console.log("Fetched users:", usersRes.data)
+
+        setRooms(roomsRes.data.rooms)
+        setUsers(usersRes.data)
+        
+        // Check if there's a chat recipient from profile page
+        const recipientData = localStorage.getItem("nexus-chat-recipient")
+        if (recipientData) {
+          const recipient = JSON.parse(recipientData)
+          
+          // Find if room already exists with this user
+          const existingRoom = roomsRes.data.rooms.find(room => {
+            const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
+            return otherUser._id === recipient.id
+          })
+          
+          if (existingRoom) {
+            // Select existing room
+            setSelectedRoom(existingRoom)
+          } else {
+            // Create new room with this user
+            try {
+              const response = await axios.post(
+                "http://localhost:5000/api/chat/createRoom",
+                { friend_id: recipient.id },
+                { headers: { Authorization: `Bearer ${token}` } }
+              )
+              console.log("Room created:", response.data)
+              // Refresh rooms after creating new one
+              const updatedRoomsRes = await axios.get("http://localhost:5000/api/chat/getUserRooms", {
+                headers: { Authorization: `Bearer ${token}` }
+              })
+              setRooms(updatedRoomsRes.data.rooms)
+              
+              // Find and select the newly created room
+              const newRoom = updatedRoomsRes.data.rooms.find(room => {
+                const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
+                return otherUser._id === recipient.id
+              })
+              
+              if (newRoom) setSelectedRoom(newRoom)
+            } catch (err) {
+              console.error("Error creating room:", err)
+              toast({
+                title: "Error",
+                description: "Failed to create chat room",
+                variant: "destructive"
+              })
+            }
+          }
+          
+          // Clear the recipient data
+          localStorage.removeItem("nexus-chat-recipient")
+
+          // Hide sidebar on mobile
+          if (isMobile) {
+            setShowSidebar(false)
+          }
+        }
       } catch (err) {
-        console.error("Error fetching data:", err);
+        console.error("Error fetching data:", err)
+        toast({
+          title: "Error",
+          description: "Failed to load chat data",
+          variant: "destructive"
+        })
       } finally {
-        setLoading(false);
+        setIsLoading(false)
       }
-    };
+    }
 
-    fetchData();
-  }, [token, router]);
+    fetchData()
+    
+    // Get user data
+    const userData = localStorage.getItem("user")
+    if (userData) {
+      setUser(JSON.parse(userData))
+    }
+  }, [router, token, currentUserId, toast, isMobile])
+  
+  // Set up socket connection when selected room changes
+  useEffect(() => {
+    if (!selectedRoom || !token) {
+      console.log("Room or token missing, skipping socket setup.")
+      return
+    }
 
+    console.log("Connecting socket...")
+    const newSocket = io("http://localhost:5000", {
+      auth: { token: `Bearer ${token}` },
+      withCredentials: true,
+      transports: ["polling", "websocket"]
+    })
+
+    newSocket.on("connect", () => {
+      console.log("Socket connected:", newSocket.id)
+      setIsConnected(true)
+      newSocket.emit("joinRoom", selectedRoom._id)
+    })
+
+    newSocket.on("previousMessages", (msgs) => {
+      console.log("Previous messages:", msgs)
+      setMessages(msgs)
+    })
+
+    newSocket.on("serverSendsMsg", (msg) => {
+      console.log("New message from server:", msg)
+      setMessages((prev) => [...prev, msg])
+      
+      // Show toast notification for new messages
+      if (msg.sender?._id !== currentUserId) {
+        const otherUser = selectedRoom.user1._id === currentUserId ? selectedRoom.user2 : selectedRoom.user1
+        toast({
+          title: `New message from ${otherUser.fullName}`,
+          description: msg.content.substring(0, 60) + (msg.content.length > 60 ? "..." : ""),
+        })
+      }
+    })
+
+    newSocket.on("disconnect", () => {
+      console.log("Socket disconnected.")
+      setIsConnected(false)
+    })
+
+    setSocket(newSocket)
+
+    return () => {
+      console.log("Disconnecting socket...")
+      newSocket.disconnect()
+    }
+  }, [selectedRoom, token, toast, currentUserId])
+
+  // Scroll to bottom of messages when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+  
+  // Handle creating a new chat room with a user
   const handleCreateRoom = async (friendId) => {
-    console.log("Creating room with user:", friendId);
+    console.log("Creating room with user:", friendId)
     try {
       const response = await axios.post(
         "http://localhost:5000/api/chat/createRoom",
         { friend_id: friendId },
         { headers: { Authorization: `Bearer ${token}` } }
-      );
-      console.log("Room created:", response.data);
-      window.location.reload();
+      )
+      console.log("Room created:", response.data)
+      
+      // Refresh rooms after creating new one
+      const updatedRoomsRes = await axios.get("http://localhost:5000/api/chat/getUserRooms", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setRooms(updatedRoomsRes.data.rooms)
+      
+      // Find and select the newly created room
+      const newRoom = updatedRoomsRes.data.rooms.find(room => {
+        const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
+        return otherUser._id === friendId
+      })
+      
+      if (newRoom) setSelectedRoom(newRoom)
+      
+      // Hide dropdown
+      setShowUsersDropdown(false)
+      
+      toast({
+        title: "Success",
+        description: "Chat room created successfully",
+      })
     } catch (err) {
-      console.error("Error creating room:", err);
+      console.error("Error creating room:", err)
+      toast({
+        title: "Error",
+        description: "Failed to create chat room",
+        variant: "destructive"
+      })
     }
-  };
+  }
+  
+  // Handle sending a message
+  const sendMessage = (e) => {
+    e.preventDefault()
 
-  return (
-    <div className="flex h-screen bg-gray-50">
-      <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800 flex items-center">
-            <MessageSquare className="mr-2" size={20} />
-            Your Chats
-          </h2>
-        </div>
+    if (!newMessage.trim() || !selectedRoom || !isConnected) return
 
-        <div className="p-4 border-b border-gray-200">
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            className="w-full flex items-center justify-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-          >
-            <PlusCircle className="mr-2" size={18} />
-            New Chat
-          </button>
-
-          {showDropdown && (
-            <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
-              {users.filter(user => user._id !== currentUserId).length === 0 ? (
-                <div className="text-center text-gray-500 p-4">No other users available</div>
-              ) : (
-                users
-                  .filter((user) => user._id !== currentUserId)
-                  .map((user) => (
-                    <div
-                      key={user._id}
-                      onClick={() => handleCreateRoom(user._id)}
-                      className="p-3 hover:bg-gray-100 cursor-pointer flex items-center transition-colors"
-                    >
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium mr-3">
-                        {user.fullName?.charAt(0)}
-                      </div>
-                      <div className="font-medium text-gray-700">{user.fullName}</div>
-                    </div>
-                  ))
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-2">
-          {loading ? (
-            <div className="flex justify-center items-center h-full">
-              <div className="animate-spin h-8 w-8 rounded-full border-t-2 border-indigo-600"></div>
-            </div>
-          ) : rooms.length === 0 ? (
-            <div className="text-center text-gray-500 mt-8">No chats yet.</div>
-          ) : (
-            rooms.map((room) => {
-              const otherUser =
-                room.user1._id === currentUserId ? room.user2 : room.user1;
-
-              const isActive = selectedRoom?._id === room._id;
-
-              return (
-                <div
-                  key={room._id}
-                  onClick={() => {
-                    console.log("Selected room:", room._id);
-                    setSelectedRoom(room);
-                  }}
-                  className={`p-3 rounded-lg mb-2 flex items-center cursor-pointer transition-colors ${
-                    isActive
-                      ? "bg-indigo-50 border border-indigo-200"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-medium mr-3">
-                    {otherUser.fullName?.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="font-medium text-gray-800">{otherUser.fullName}</div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </div>
-
-      <RightChatArea
-        selectedRoom={selectedRoom}
-        currentUserId={currentUserId}
-        token={token}
-      />
-    </div>
-  );
-};
-
-const RightChatArea = ({ selectedRoom, currentUserId, token }) => {
-  const [socket, setSocket] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState("");
-  const [isConnected, setIsConnected] = useState(false);
-
-  useEffect(() => {
-    if (!selectedRoom || !token) {
-      console.log("Room or token missing, skipping socket setup.");
-      return;
-    }
-
-    console.log("Connecting socket...");
-    const newSocket = io("http://localhost:5000", {
-      auth: { token: `Bearer ${token}` },
-      withCredentials: true,
-      transports: ["polling", "websocket"]
-    });
-
-    newSocket.on("connect", () => {
-      console.log("Socket connected:", newSocket.id);
-      setIsConnected(true);
-      newSocket.emit("joinRoom", selectedRoom._id);
-    });
-
-    newSocket.on("previousMessages", (msgs) => {
-      console.log("Previous messages:", msgs);
-      setMessages(msgs);
-    });
-
-    newSocket.on("serverSendsMsg", (msg) => {
-      console.log("New message from server:", msg);
-      setMessages((prev) => [...prev, msg]);
-    });
-
-    newSocket.on("disconnect", () => {
-      console.log("Socket disconnected.");
-      setIsConnected(false);
-    });
-
-    setSocket(newSocket);
-
-    return () => {
-      console.log("Disconnecting socket...");
-      newSocket.disconnect();
-    };
-  }, [selectedRoom, token]);
-
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
-
-    console.log(`Sending: "${inputMessage}" to ${selectedRoom._id}`);
+    console.log(`Sending: "${newMessage}" to ${selectedRoom._id}`)
     socket.emit("serverRcvsMsg", {
-      text: inputMessage,
+      text: newMessage,
       roomId: selectedRoom._id,
       userId: currentUserId,
-    });
+    })
 
-    setInputMessage("");
-  };
-
-  if (!selectedRoom) {
-    return (
-      <div className="flex-1 flex items-center justify-center text-gray-500 bg-gray-50">
-        <p>Select a chat to start messaging</p>
-      </div>
-    );
+    setNewMessage("")
   }
 
-  const otherUser =
-    selectedRoom.user1._id === currentUserId ? selectedRoom.user2 : selectedRoom.user1;
+  // Format timestamp
+  const formatMessageTime = (timestamp) => {
+    const date = new Date(timestamp)
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  }
+
+  // Toggle sidebar on mobile
+  const toggleSidebar = () => {
+    setShowSidebar((prev) => !prev)
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    )
+  }
 
   return (
-    <div className="flex-1 flex flex-col">
-      <div className="p-4 bg-white border-b border-gray-200 flex items-center">
-        <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 mr-3">
-          {otherUser.fullName?.charAt(0)}
-        </div>
-        <div>
-          <div className="font-bold text-gray-800">{otherUser.fullName}</div>
-          <div className="text-sm text-gray-500">
-            {isConnected ? "Online" : "Offline"}
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-400 mt-10">
-            <MessageSquare size={36} className="mx-auto mb-2" />
-            No messages yet.
-          </div>
-        ) : (
-          messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={`mb-4 flex ${
-                msg.sender?._id === currentUserId ? "justify-end" : "justify-start"
-              }`}
-            >
-              <div
-                className={`max-w-md px-4 py-2 rounded-lg ${
-                  msg.sender?._id === currentUserId
-                    ? "bg-indigo-600 text-white rounded-br-none"
-                    : "bg-white border border-gray-300 rounded-bl-none"
-                }`}
-              >
-                {msg.sender?._id !== currentUserId && (
-                  <div className="text-xs text-indigo-500 font-semibold mb-1">
-                    {msg.sender?.name}
-                  </div>
-                )}
-                <div>{msg.content}</div>
-                <div className="text-xs text-right mt-1 text-gray-400">
-                  {new Date(msg.timestamp).toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </div>
+    <AppLayout>
+      <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+        {/* Contacts Sidebar */}
+        {showSidebar && (
+          <div className="w-66 md:w-45 border-r flex flex-col">
+            <div className="p-4 border-b">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  placeholder="Search contacts..."
+                  className="pl-10"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
               </div>
             </div>
-          ))
+            
+            {/* New Chat Button */}
+            <div className="p-4 border-b">
+              <Button
+                className="w-full"
+                onClick={() => setShowUsersDropdown(!showUsersDropdown)}
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                New Chat
+              </Button>
+              
+              {/* User List Dropdown */}
+              {showUsersDropdown && (
+                <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                  {users.filter(user => user._id !== currentUserId).length === 0 ? (
+                    <div className="p-4 text-center text-muted-foreground">No users available</div>
+                  ) : (
+                    users
+                      .filter(user => user._id !== currentUserId)
+                      .map(user => (
+                        <div
+                          key={user._id}
+                          onClick={() => handleCreateRoom(user._id)}
+                          className="p-3 hover:bg-muted cursor-pointer flex items-center"
+                        >
+                          <Avatar className="h-8 w-8 mr-3">
+                            <AvatarImage src={"/placeholder.svg"} alt={user.fullName} />
+                            <AvatarFallback>{user.fullName?.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div className="font-medium">{user.fullName}</div>
+                        </div>
+                      ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            <ScrollArea className="flex-1">
+              <div className="divide-y">
+                {filteredRooms.length > 0 ? (
+                  filteredRooms.map((room) => {
+                    const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
+                    const isActive = selectedRoom?._id === room._id
+                    
+                    // Get the last message for this room
+                    const lastMessage = room.lastMessage || "Start a conversation"
+                    const timestamp = room.lastMessageTime ? new Date(room.lastMessageTime).toLocaleDateString() : "No messages"
+                    
+                    return (
+                      <div
+                        key={room._id}
+                        className={`p-4 cursor-pointer hover:bg-muted transition-colors ${
+                          isActive ? "bg-muted" : ""
+                        }`}
+                        onClick={() => {
+                          setSelectedRoom(room)
+                          // Hide sidebar on mobile
+                          if (isMobile) {
+                            setShowSidebar(false)
+                          }
+                        }}
+                      >
+                        <div className="flex gap-3">
+                          <Avatar className="h-10 w-10">
+                            <AvatarImage src={"/placeholder.svg"} alt={otherUser.fullName} />
+                            <AvatarFallback>{otherUser.fullName?.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start">
+                              <h3 className="font-medium truncate">{otherUser.fullName}</h3>
+                              <span className="text-xs text-muted-foreground">{timestamp}</span>
+                            </div>
+                            <p className="text-sm text-muted-foreground truncate">{lastMessage}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })
+                ) : (
+                  <div className="p-8 text-center">
+                    <p className="text-muted-foreground">No conversations found</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </div>
         )}
-      </div>
 
-      <div className="p-4 bg-white border-t border-gray-200 flex">
-        <input
-          type="text"
-          className="flex-1 p-3 border border-gray-300 rounded-l-lg focus:outline-none"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-          disabled={!isConnected}
-          placeholder="Type your message..."
-        />
-        <button
-          onClick={handleSendMessage}
-          disabled={!inputMessage.trim() || !isConnected}
-          className={`px-4 rounded-r-lg ${
-            inputMessage.trim() && isConnected
-              ? "bg-indigo-600 hover:bg-indigo-700"
-              : "bg-gray-300"
-          } text-white`}
-        >
-          <Send size={20} />
-        </button>
-      </div>
-    </div>
-  );
-};
+        {/* Chat Area */}
+        <div className="flex-1 flex flex-col">
+          {selectedRoom ? (
+            <>
+              <div className="p-4 border-b flex items-center gap-3">
+                {isMobile && (
+                  <Button variant="ghost" size="icon" onClick={toggleSidebar}>
+                    <ArrowLeft className="h-5 w-5" />
+                  </Button>
+                )}
+                
+                {selectedRoom && (
+                  <>
+                    <Avatar className="h-10 w-10">
+                      {selectedRoom.user1 && selectedRoom.user2 && (
+                        <>
+                          <AvatarImage 
+                            src={"/placeholder.svg"} 
+                            alt={selectedRoom.user1._id === currentUserId ? selectedRoom.user2.fullName : selectedRoom.user1.fullName} 
+                          />
+                          <AvatarFallback>
+                            {(selectedRoom.user1._id === currentUserId ? selectedRoom.user2.fullName : selectedRoom.user1.fullName)?.charAt(0)}
+                          </AvatarFallback>
+                        </>
+                      )}
+                    </Avatar>
+                    <div>
+                      <h3 className="font-medium">
+                        {selectedRoom.user1 && selectedRoom.user2 && 
+                          (selectedRoom.user1._id === currentUserId ? selectedRoom.user2.fullName : selectedRoom.user1.fullName)}
+                      </h3>
+                      <div className="text-sm text-muted-foreground">
+                        {isConnected ? "Online" : "Offline"}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
 
-export default ChatApp;
+              <ScrollArea className="flex-1 p-4">
+                <div className="space-y-4">
+                  {messages.length === 0 ? (
+                    <div className="text-center text-muted-foreground mt-10">
+                      <MessageSquare className="mx-auto h-8 w-8 mb-2" />
+                      <p>No messages yet. Start the conversation!</p>
+                    </div>
+                  ) : (
+                    messages.map((message, idx) => (
+                      <div
+                        key={idx}
+                        className={`flex ${message.sender?._id === currentUserId ? "justify-end" : "justify-start"}`}
+                      >
+                        <div
+                          className={`max-w-[80%] rounded-lg p-3 ${
+                            message.sender?._id === currentUserId ? "bg-primary text-primary-foreground" : "bg-muted"
+                          }`}
+                        >
+                          <p className="text-sm">{message.content}</p>
+                          <p
+                            className={`text-xs mt-1 ${
+                              message.sender?._id === currentUserId ? "text-primary-foreground/70" : "text-muted-foreground"
+                            }`}
+                          >
+                            {formatMessageTime(message.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+
+              <div className="p-4 border-t">
+                <form onSubmit={sendMessage} className="flex gap-2">
+                  <Input
+                    placeholder="Type a message..."
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    className="flex-1"
+                    disabled={!isConnected}
+                  />
+                  <Button type="submit" size="icon" disabled={!newMessage.trim() || !isConnected}>
+                    <Send className="h-4 w-4" />
+                  </Button>
+                </form>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center p-4">
+              {isMobile && (
+                <Button variant="outline" className="mb-4" onClick={toggleSidebar}>
+                  Show Contacts
+                </Button>
+              )}
+              <div className="text-center max-w-md">
+                <h2 className="text-2xl font-bold mb-2">Welcome to Nexus Chat</h2>
+                <p className="text-muted-foreground">
+                  Select a contact to start messaging or create a new chat with an alumni.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </AppLayout>
+  )
+}
