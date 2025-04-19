@@ -1,12 +1,11 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Loader2, Send, Search, ArrowLeft, MessageSquare, PlusCircle } from "lucide-react"
 import { Button } from "@/src/components/ui/button"
 import { Input } from "@/src/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
-import { ScrollArea } from "@/src/components/ui/scroll-area"
 import { useToast } from "@/src/hooks/use-toast"
 import { useMobile } from "@/src/hooks/use-mobile"
 import AppLayout from "@/src/components/app-layout"
@@ -18,7 +17,6 @@ export default function ChatPage() {
   const router = useRouter()
   const { toast } = useToast()
   const isMobile = useMobile()
-  const messagesEndRef = useRef(null)
 
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -202,11 +200,6 @@ export default function ChatPage() {
       newSocket.disconnect()
     }
   }, [selectedRoom, token, toast, currentUserId])
-
-  // Scroll to bottom of messages when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
   
   // Handle creating a new chat room with a user
   const handleCreateRoom = async (friendId) => {
@@ -291,7 +284,7 @@ export default function ChatPage() {
         {/* Contacts Sidebar */}
         {showSidebar && (
           <div className="w-66 md:w-45 border-r flex flex-col">
-            <div className="p-4 border-b">
+            <div className="p-4 border-b h-15">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
@@ -304,7 +297,7 @@ export default function ChatPage() {
             </div>
             
             {/* New Chat Button */}
-            <div className="p-4 border-b">
+            <div className="p-4 border-b  h-15">
               <Button
                 className="w-full"
                 onClick={() => setShowUsersDropdown(!showUsersDropdown)}
@@ -315,7 +308,7 @@ export default function ChatPage() {
               
               {/* User List Dropdown */}
               {showUsersDropdown && (
-                <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-64 overflow-y-auto">
+                <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg " style={{ maxHeight: '30vh', overflowY: 'auto' }}>
                   {users.filter(user => user._id !== currentUserId).length === 0 ? (
                     <div className="p-4 text-center text-muted-foreground">No users available</div>
                   ) : (
@@ -339,7 +332,8 @@ export default function ChatPage() {
               )}
             </div>
 
-            <ScrollArea className="flex-1">
+            {/* Contacts List - Replaced ScrollArea with scrollable div */}
+            <div className="flex-1"  style={{ maxHeight: '70vh', overflowY: 'auto' }}>
               <div className="divide-y">
                 {filteredRooms.length > 0 ? (
                   filteredRooms.map((room) => {
@@ -386,15 +380,15 @@ export default function ChatPage() {
                   </div>
                 )}
               </div>
-            </ScrollArea>
+            </div>
           </div>
         )}
 
         {/* Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col h-60">
           {selectedRoom ? (
             <>
-              <div className="p-4 border-b flex items-center gap-3">
+              <div className="p-4 border-b flex items-center gap-3 h-15">
                 {isMobile && (
                   <Button variant="ghost" size="icon" onClick={toggleSidebar}>
                     <ArrowLeft className="h-5 w-5" />
@@ -429,7 +423,11 @@ export default function ChatPage() {
                 )}
               </div>
 
-              <ScrollArea className="flex-1 p-4">
+              {/* Messages Area - Replaced ScrollArea with scrollable div */}
+              <div
+  className="flex-1 p-4"
+  style={{ maxHeight: '68vh', overflowY: 'auto' }}
+>
                 <div className="space-y-4">
                   {messages.length === 0 ? (
                     <div className="text-center text-muted-foreground mt-10">
@@ -459,9 +457,8 @@ export default function ChatPage() {
                       </div>
                     ))
                   )}
-                  <div ref={messagesEndRef} />
                 </div>
-              </ScrollArea>
+              </div>
 
               <div className="p-4 border-t">
                 <form onSubmit={sendMessage} className="flex gap-2">
