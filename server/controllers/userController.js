@@ -151,10 +151,205 @@ exports.uploadResume = async (req, res) => {
   }
 };
 
+// exports.updateAllUserProfile = async (req, res) => {
+//   try {
+//     const userId = req.user.id; 
+//     const {
+//       fullName,
+//       role,
+//       graduationYear,
+//       branch,
+//       jobTitle,
+//       company,
+//       location,
+//       bio,
+//       profileImage,
+//       linkedIn,
+//       resume,
+//       experiences,
+//       education,
+//       skills,
+//       achievements,
+//     } = req.body;
+
+//     const updatedData = {
+//       fullName,
+//       role,
+//       graduationYear,
+//       branch,
+//       jobTitle,
+//       company,
+//       location,
+//       bio,
+//       profileImage,
+//       linkedIn,
+//       resume,
+//       experiences,
+//       education,
+//       skills,
+//       achievements,
+//       isProfileComplete: true,
+//       updatedAt: new Date(),
+//     };
+
+//     if (profileImage && profileImage.startsWith('data:image')) {
+//       const cloudinaryResult = await cloudinary.uploader.upload(profileImage, {
+//         folder: 'alumniverse',  
+//         public_id: `${userId}-profile`,  
+//         resource_type: 'image',  
+//       });
+
+//       updatedData.profileImage = cloudinaryResult.secure_url;  // Save the Cloudinary image URL
+//     }
+
+//     if (resume && resume.startsWith('data:application')) {
+//       const cloudinaryResult = await cloudinary.uploader.upload(resume, {
+//         folder: 'alumniverse',  // Cloudinary folder
+//         public_id: `${userId}-resume`,  // Use user ID for unique public ID
+//         resource_type: 'raw',  // Treat as raw file (e.g., PDF)
+//       });
+
+//       updatedData.resume = cloudinaryResult.secure_url;  // Save the Cloudinary resume URL
+//     }
+
+//     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+//       new: true,
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Profile updated successfully",
+//       data: updatedUser,
+//     });
+//   } catch (error) {
+//     console.error("Error updating profile:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "An error occurred while updating the profile",
+//     });
+//   }
+// };
+
+
+
+// exports.updateAllUserProfile = async (req, res) => {
+//   try {
+//     const userId = req.user.id;
+//     let {
+//       fullName,
+//       role,
+//       graduationYear,
+//       branch,
+//       jobTitle,
+//       company,
+//       location,
+//       bio,
+//       profileImage,
+//       linkedIn,
+//       resume,
+//       experiences,
+//       education,
+//       skills,
+//       achievements,
+//     } = req.body;
+
+//     // Process profile image
+//     if (profileImage && profileImage.startsWith("data:image")) {
+//       const cloudinaryResult = await cloudinary.uploader.upload(profileImage, {
+//         folder: "alumniverse",
+//         public_id: `${userId}-profile`,
+//         resource_type: "image",
+//       });
+
+//       profileImage = cloudinaryResult.secure_url;
+//     }
+
+//     // Process resume
+//     if (resume && resume.startsWith("data:application")) {
+//       const cloudinaryResult = await cloudinary.uploader.upload(resume, {
+//         folder: "alumniverse",
+//         public_id: `${userId}-resume`,
+//         resource_type: "raw",
+//       });
+
+//       resume = cloudinaryResult.secure_url;
+//     }
+
+//     // Process each achievement image
+//     if (Array.isArray(achievements)) {
+//       const updatedAchievements = await Promise.all(
+//         achievements.map(async (ach, index) => {
+//           if (ach.imageFile && ach.imageFile.startsWith("data:image")) {
+//             try {
+//               const result = await cloudinary.uploader.upload(ach.imageFile, {
+//                 folder: "alumniverse/achievements",
+//                 public_id: `${userId}-achievement-${index}`,
+//                 resource_type: "image",
+//               });
+//               return {
+//                 ...ach,
+//                 image: result.secure_url,
+//               };
+//             } catch (uploadError) {
+//               console.error(
+//                 `Error uploading achievement image ${index}:`,
+//                 uploadError
+//               );
+//               return ach; // fallback to original if upload fails
+//             }
+//           }
+//           return ach; // if no image or not a base64 image
+//         })
+//       );
+
+//       achievements = updatedAchievements;
+//     }
+
+//     const updatedData = {
+//       fullName,
+//       role,
+//       graduationYear,
+//       branch,
+//       jobTitle,
+//       company,
+//       location,
+//       bio,
+//       profileImage,
+//       linkedIn,
+//       resume,
+//       experiences,
+//       education,
+//       skills,
+//       achievements,
+//       isProfileComplete: true,
+//       updatedAt: new Date(),
+//     };
+
+//     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
+//       new: true,
+//     });
+
+//     res.status(200).json({
+//       success: true,
+//       message: "Profile updated successfully",
+//       data: updatedUser,
+//     });
+//   } catch (error) {
+//     console.error("Error updating profile:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "An error occurred while updating the profile",
+//     });
+//   }
+// };
+
+
+
+
 exports.updateAllUserProfile = async (req, res) => {
   try {
-    const userId = req.user.id; 
-    const {
+    const userId = req.user.id;
+    let {
       fullName,
       role,
       graduationYear,
@@ -171,6 +366,67 @@ exports.updateAllUserProfile = async (req, res) => {
       skills,
       achievements,
     } = req.body;
+
+    // Parse arrays if they come in as JSON strings
+    if (typeof experiences === "string") experiences = JSON.parse(experiences);
+    if (typeof education === "string") education = JSON.parse(education);
+    if (typeof skills === "string") skills = JSON.parse(skills);
+    if (typeof achievements === "string")
+      achievements = JSON.parse(achievements);
+
+    // Handle profileImage and resume (if base64)
+    if (profileImage && profileImage.startsWith("data:image")) {
+      const cloudinaryResult = await cloudinary.uploader.upload(profileImage, {
+        folder: "alumniverse",
+        public_id: `${userId}-profile`,
+        resource_type: "image",
+      });
+      profileImage = cloudinaryResult.secure_url;
+    }
+
+    if (resume && resume.startsWith("data:application")) {
+      const cloudinaryResult = await cloudinary.uploader.upload(resume, {
+        folder: "alumniverse",
+        public_id: `${userId}-resume`,
+        resource_type: "raw",
+      });
+      resume = cloudinaryResult.secure_url;
+    }
+
+    // Match uploaded achievement images
+    let achievementImages = req.files?.achievementImages || [];
+
+    if (!Array.isArray(achievementImages)) {
+      achievementImages = [achievementImages]; // handle single file case
+    }
+
+    const updatedAchievements = await Promise.all(
+      achievements.map(async (ach, idx) => {
+        const imageFile = achievementImages[idx];
+
+        if (imageFile) {
+          try {
+            const result = await cloudinary.uploader.upload(imageFile.path, {
+              folder: "alumniverse/achievements",
+              public_id: `${userId}-achievement-${idx}`,
+              resource_type: "image",
+            });
+
+            return {
+              ...ach,
+              image: result.secure_url,
+            };
+          } catch (err) {
+            console.error(`Error uploading achievement image ${idx}:`, err);
+            return ach;
+          }
+        }
+
+        return ach;
+      })
+    );
+
+    achievements = updatedAchievements;
 
     const updatedData = {
       fullName,
@@ -191,26 +447,6 @@ exports.updateAllUserProfile = async (req, res) => {
       isProfileComplete: true,
       updatedAt: new Date(),
     };
-
-    if (profileImage && profileImage.startsWith('data:image')) {
-      const cloudinaryResult = await cloudinary.uploader.upload(profileImage, {
-        folder: 'alumniverse',  
-        public_id: `${userId}-profile`,  
-        resource_type: 'image',  
-      });
-
-      updatedData.profileImage = cloudinaryResult.secure_url;  // Save the Cloudinary image URL
-    }
-
-    if (resume && resume.startsWith('data:application')) {
-      const cloudinaryResult = await cloudinary.uploader.upload(resume, {
-        folder: 'alumniverse',  // Cloudinary folder
-        public_id: `${userId}-resume`,  // Use user ID for unique public ID
-        resource_type: 'raw',  // Treat as raw file (e.g., PDF)
-      });
-
-      updatedData.resume = cloudinaryResult.secure_url;  // Save the Cloudinary resume URL
-    }
 
     const updatedUser = await User.findByIdAndUpdate(userId, updatedData, {
       new: true,

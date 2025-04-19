@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const {
   getAllUsers,
   getMyProfile,
@@ -7,21 +7,36 @@ const {
   uploadProfileImage,
   uploadResume,
   updateAllUserProfile,
-} = require('../controllers/userController');
+} = require("../controllers/userController");
 
-const { protect } = require('../middleware/authMiddleware');
-const { upload } = require('../utils/cloudinary');
+const { protect } = require("../middleware/authMiddleware");
+const { upload } = require("../utils/cloudinary");
 
 const router = express.Router();
 
 // Authenticated routes
-router.get('/', protect, getAllUsers);             // Search + directory
-router.get('/me', protect, getMyProfile);          // Logged-in user's profile
-router.put('/', protect, updateUserProfile);    
-router.put('/all', protect, updateAllUserProfile);  
-router.get('/:id', protect, getUserById);          // Any user's public profile
+router.get("/", protect, getAllUsers); // Search + directory
+router.get("/me", protect, getMyProfile); // Logged-in user's profile
+router.put("/", protect, updateUserProfile);
+//router.put("/all", protect, upload.none(), updateAllUserProfile);
+router.put(
+  "/all",
+  protect,
+  upload.fields([
+    { name: "profileImage", maxCount: 1 },
+    { name: "resume", maxCount: 1 },
+    { name: "achievementImages", maxCount: 10 },
+  ]),
+  updateAllUserProfile
+);
+router.get("/:id", protect, getUserById); // Any user's public profile
 
-router.put('/upload/profile-image', protect, upload.single('profileImage'), uploadProfileImage);
-router.put('/upload/resume', protect, upload.single('resume'), uploadResume);
+router.put(
+  "/upload/profile-image",
+  protect,
+  upload.single("profileImage"),
+  uploadProfileImage
+);
+router.put("/upload/resume", protect, upload.single("resume"), uploadResume);
 
 module.exports = router;

@@ -59,19 +59,6 @@ const apiCall = async (
 };
 
 
-
-export const makeCommunityPost = async (body) => { 
-  return await apiCall(API_ROUTES.MAKE_COMMUNITY_POST(), "POST", body);
-};
-
-export const getAllPosts = async (body) => {
-  return await apiCall(API_ROUTES.GET_ALL_POSTS());  // GET REQUEST
-};
-
-export const likePost = async (post_id) => {
-  return await apiCall(API_ROUTES.LIKE_POST(post_id), "PUT"); // GET REQUEST
-};
-
-export const commentOnPost = async (post_id, body) => {
-  return await apiCall(API_ROUTES.COMMENT_ON_POST(post_id), "POST", body);
+export const updateUserProfile = async (body) => {
+  return await apiCall(API_ROUTES.UPDATE_USER_PROFILE(), "PUT", body);
 };

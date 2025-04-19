@@ -11,4 +11,7 @@ export const API_ROUTES = {
   GET_ALL_POSTS: (id) => `${API_BASE_URL}/api/posts/`,
   LIKE_POST: (post_id) => `${API_BASE_URL}/api/posts/like/${post_id}`,
   COMMENT_ON_POST: (post_id) => `${API_BASE_URL}/api/posts/comment/${post_id}`,
+
+  UPDATE_USER_PROFILE: (id) => `${API_BASE_URL}/api/users/all`, 
+  
 };

@@ -1,7 +1,5 @@
 "use client"
-
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -17,6 +15,8 @@ import { Progress } from "@/src/components/ui/progress"
 import { Badge } from "@/src/components/ui/badge"
 import { Checkbox } from "@/src/components/ui/checkbox"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
+
+import {updateUserProfile} from "../../api/user"
 
 // Generate years for graduation year dropdown
 const currentYear = new Date().getFullYear()
@@ -74,6 +74,7 @@ export default function ProfileSetupPage() {
   const [progress, setProgress] = useState(0)
   const [activeTab, setActiveTab] = useState("basic")
   const [profileImage, setProfileImage] = useState<string | null>(null)
+  const [profileImageFile, setProfileImageFile] = useState(null)
   const [resumeFile, setResumeFile] = useState<File | null>(null)
 
   // Basic info
@@ -124,6 +125,7 @@ export default function ProfileSetupPage() {
     description: "",
     year: "",
     image: null as string | null,
+    imageFile: null,
   })
 
   useEffect(() => {
@@ -199,15 +201,16 @@ export default function ProfileSetupPage() {
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0]
-      const reader = new FileReader()
+      setProfileImageFile(file)
+      console.log(file);
 
+      const reader = new FileReader()
       reader.onload = (event) => {
         if (event.target?.result) {
-          setProfileImage(event.target.result as string)
+          setProfileImage(event.target.result as string) // just for preview
           calculateProgress()
         }
       }
-
       reader.readAsDataURL(file)
     }
   }
@@ -401,7 +404,10 @@ export default function ProfileSetupPage() {
 
       reader.onload = (event) => {
         if (event.target?.result) {
-          setNewAchievement((prev) => ({ ...prev, image: event.target?.result as string }))
+          setNewAchievement((prev) => ({ ...prev, 
+            image: event.target?.result as string ,
+            imageFile: file
+          }))
         }
       }
 
@@ -447,38 +453,182 @@ export default function ProfileSetupPage() {
   }
 
   // Handle form submission
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault()
+  //   setError("")
+  //   setIsLoading(true)
+
+  //   try {// need this as a form data
+  //     const body = {
+  //       "fullName" : basicInfo.fullName,
+  //       "graduationYear" : basicInfo.graduationYear,
+  //       "role" : user.role,
+  //       "branch" : basicInfo.branch,
+  //       "jobTitle" : basicInfo.currentJob,
+  //       "location" : basicInfo.location,
+  //       "bio" : basicInfo.bio,
+  //       "profileImage" : profileImage, // make sure this is correct
+  //       "linkedIn" : basicInfo.linkedinUrl,
+  //       "resume" : resumeFile, // make sure it is correct
+  //       "experiences" : experiences,
+  //       "education" : education,
+  //       "skills" : skills,
+  //       "achievements" : achievements
+  //     }
+  //     const response = await updateUserProfile(body);
+      
+
+  //     // Update user data in localStorage
+  //     const updatedUser = {
+  //       ...user,
+  //       ...basicInfo,
+  //       isProfileComplete: true,
+  //       profileImage,
+  //       hasResume: !!resumeFile,
+  //       skills,
+  //       experiences,
+  //       education,
+  //       achievements,
+  //     }
+
+  //     //localStorage.setItem("user", JSON.stringify(updatedUser))
+  //     if(response){
+  //       console.log("prof data response = ",response);
+  //       localStorage.setItem("user", JSON.stringify(response.data))
+  //     }
+      
+
+  //     // Redirect to home page
+  //     router.push("/home")
+  //   } catch (err) {
+  //     setError("Failed to save profile. Please try again.")
+  //   } finally {
+  //     setIsLoading(false)
+  //   }
+  // }
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setError("");
+  //   setIsLoading(true);
+  
+  //   try {
+  //     const formData = new FormData();
+  
+  //     // Basic fields
+  //     formData.append("fullName", basicInfo.fullName);
+  //     formData.append("graduationYear", basicInfo.graduationYear.toString());
+  //     formData.append("role", user.role);
+  //     formData.append("branch", basicInfo.branch);
+  //     formData.append("jobTitle", basicInfo.currentJob);
+  //     formData.append("location", basicInfo.location);
+  //     formData.append("bio", basicInfo.bio);
+  //     formData.append("linkedIn", basicInfo.linkedinUrl);
+  
+  //     // Files
+  //     if (profileImageFile instanceof File) {
+  //       formData.append("profileImage", profileImageFile);
+  //     } else if (typeof profileImage === "string") {
+  //       console.log("THIS IS UNEXPECTED IMAGE URL ERROR IN PROFILE SETUP")
+  //       formData.append("profileImage", profileImage); // Send URL separately if it's already uploaded
+  //     }
+  
+  //     if (resumeFile) {
+  //       formData.append("resume", resumeFile);
+  //     }
+  
+  //     // Arrays or nested data: stringify
+  //     formData.append("experiences", JSON.stringify(experiences));
+  //     formData.append("education", JSON.stringify(education));
+  //     formData.append("skills", JSON.stringify(skills));
+  //     formData.append("achievements", JSON.stringify(achievements));
+  
+  //     console.log("Formdata contains = ",formData);
+  //     // Send the FormData
+  //     const response = await updateUserProfile(formData); // this must support FormData
+  
+  //     // Update user data in localStorage
+  //     if (response) {
+  //       console.log("prof data response = ", response);
+  //       localStorage.setItem("user", JSON.stringify(response.data));
+  //     }
+  
+  //     router.push("/home");
+  //   } catch (err) {
+  //     setError("Failed to save profile. Please try again.");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
-    setIsLoading(true)
-
+    e.preventDefault();
+    setError("");
+    setIsLoading(true);
+  
     try {
-      // Mock API call - would be replaced with actual backend integration
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // Update user data in localStorage
-      const updatedUser = {
-        ...user,
-        ...basicInfo,
-        isProfileComplete: true,
-        profileImage,
-        hasResume: !!resumeFile,
-        skills,
-        experiences,
-        education,
-        achievements,
+      const formData = new FormData();
+  
+      // Basic fields
+      formData.append("fullName", basicInfo.fullName);
+      formData.append("graduationYear", basicInfo.graduationYear.toString());
+      formData.append("role", user.role);
+      formData.append("branch", basicInfo.branch);
+      formData.append("jobTitle", basicInfo.currentJob);
+      formData.append("location", basicInfo.location);
+      formData.append("bio", basicInfo.bio);
+      formData.append("linkedIn", basicInfo.linkedinUrl);
+  
+      // Files
+      if (profileImageFile instanceof File) {
+        formData.append("profileImage", profileImageFile);
+      } else if (typeof profileImage === "string") {
+        console.log("THIS IS UNEXPECTED IMAGE URL ERROR IN PROFILE SETUP");
+        formData.append("profileImage", profileImage);
       }
-
-      localStorage.setItem("user", JSON.stringify(updatedUser))
-
-      // Redirect to home page
-      router.push("/home")
+  
+      if (resumeFile) {
+        formData.append("resume", resumeFile);
+      }
+  
+      // Arrays or nested data: stringify
+      formData.append("experiences", JSON.stringify(experiences));
+      formData.append("education", JSON.stringify(education));
+      formData.append("skills", JSON.stringify(skills));
+  
+      // 🧠 Handle achievements separately
+      const achievementsForUpload = achievements.map((ach) => {
+        const { imageFile, ...rest } = ach;
+        return rest;
+      });
+  
+      formData.append("achievements", JSON.stringify(achievementsForUpload));
+  
+      // 📦 Manually append imageFiles to 'achievementImages'
+      achievements.forEach((ach) => {
+        if (ach.imageFile instanceof File) {
+          formData.append("achievementImages", ach.imageFile);
+        }
+      });
+  
+      console.log("Formdata being sent = ", formData);
+  
+      // 🚀 Submit form data
+      const response = await updateUserProfile(formData);
+  
+      if (response) {
+        console.log("Profile update response:", response);
+        localStorage.setItem("user", JSON.stringify(response.data));
+      }
+  
+      router.push("/home");
     } catch (err) {
-      setError("Failed to save profile. Please try again.")
+      setError("Failed to save profile. Please try again.");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
+  
+  
 
   if (!user) {
     return (
