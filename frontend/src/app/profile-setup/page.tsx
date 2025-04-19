@@ -896,7 +896,7 @@ export default function ProfileSetupPage() {
                             <Label htmlFor="title">Job Title</Label>
                             <Input
                               id="title"
-                              name="title"
+                              name="jobTitle"
                               value={newExperience.jobTitle}
                               onChange={handleExperienceChange}
                               placeholder="e.g. Software Engineer"

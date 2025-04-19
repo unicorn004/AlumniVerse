@@ -328,7 +328,7 @@ export default function ChatPage() {
                           className="p-3 hover:bg-muted cursor-pointer flex items-center"
                         >
                           <Avatar className="h-8 w-8 mr-3">
-                            <AvatarImage src={"/placeholder.svg"} alt={user.fullName} />
+                            <AvatarImage src={user.profileImage} alt={user.fullName} />
                             <AvatarFallback>{user.fullName?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="font-medium">{user.fullName}</div>
@@ -366,7 +366,7 @@ export default function ChatPage() {
                       >
                         <div className="flex gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={"/placeholder.svg"} alt={otherUser.fullName} />
+                            <AvatarImage src={otherUser.profileImage} alt={otherUser.fullName} />
                             <AvatarFallback>{otherUser.fullName?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
@@ -407,7 +407,7 @@ export default function ChatPage() {
                       {selectedRoom.user1 && selectedRoom.user2 && (
                         <>
                           <AvatarImage 
-                            src={"/placeholder.svg"} 
+                            src={selectedRoom.user1._id === currentUserId ? selectedRoom.user2.profileImage : selectedRoom.user1.profileImage} 
                             alt={selectedRoom.user1._id === currentUserId ? selectedRoom.user2.fullName : selectedRoom.user1.fullName} 
                           />
                           <AvatarFallback>

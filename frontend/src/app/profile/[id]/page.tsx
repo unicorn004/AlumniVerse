@@ -110,7 +110,7 @@ export default function ProfilePage() {
               role: "alumni",
               graduationYear: "2018",
               degree: "Computer Science",
-              currentJob: "Senior Software Engineer",
+              jobTitle: "Senior Software Engineer",
               company: "Tech Innovations Inc.",
               location: "San Francisco, CA",
               email: "jane.smith@example.com",
@@ -163,7 +163,7 @@ export default function ProfilePage() {
               role: "alumni",
               graduationYear: "2020",
               degree: "Electrical Engineering",
-              currentJob: "Hardware Engineer",
+              jobTitle: "Hardware Engineer",
               company: "ElectroTech Corp",
               location: "Boston, MA",
               email: "john.doe@example.com",
@@ -519,16 +519,16 @@ export default function ProfilePage() {
                             {editedProfile.role === "alumni" && (
                               <>
                                 <div className="space-y-2">
-                                  <Label htmlFor="currentJob">
+                                  <Label htmlFor="jobTitle">
                                     Current Job
                                   </Label>
                                   <Input
-                                    id="currentJob"
-                                    value={editedProfile.currentJob || ""}
+                                    id="jobTitle"
+                                    value={editedProfile.jobTitle || ""}
                                     onChange={(e) =>
                                       setEditedProfile({
                                         ...editedProfile,
-                                        currentJob: e.target.value,
+                                        jobTitle: e.target.value,
                                       })
                                     }
                                   />
@@ -1088,18 +1088,18 @@ export default function ProfilePage() {
                   {profile.degree} • Class of {profile.graduationYear}
                 </p>
 
-                {profile.role === "alumni" && profile.currentJob && (
+                {profile.role === "alumni" && profile.jobTitle && (
                   <div className="flex items-center gap-2 text-sm mb-2">
                     <Briefcase className="h-4 w-4 text-muted-foreground" />
                     <span>
-                      {profile.currentJob} at {profile.company}
+                      {profile.jobTitle}
                     </span>
                   </div>
                 )}
 
                 <div className="flex items-center gap-2 text-sm mb-2">
                   <GraduationCap className="h-4 w-4 text-muted-foreground" />
-                  <span>{profile.degree}</span>
+                  <span>{profile.role}</span>
                 </div>
 
                 {profile.location && (

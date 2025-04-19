@@ -48,8 +48,8 @@ const getUserRooms = async (req, res) => {
     const rooms = await Room.find({
       $or: [{ user1: userId }, { user2: userId }]
     })
-    .populate('user1', 'fullName email') // populate user details (optional)
-    .populate('user2', 'fullName email') 
+    .populate('user1', 'fullName email profileImage') // populate user details (optional)
+    .populate('user2', 'fullName email profileImage') 
     .populate({
       path: 'messages',
       options: { sort: { timestamp: -1 }, limit: 1 }, // last message preview
