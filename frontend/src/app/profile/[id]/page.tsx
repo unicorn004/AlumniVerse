@@ -1,74 +1,105 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useParams } from "next/navigation"
-import Image from "next/image"
-import Link from "next/link"
-import { Briefcase, GraduationCap, MapPin, Mail, Calendar, Edit, X } from "lucide-react"
-import { Button } from "@/src/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { Badge } from "@/src/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/src/components/ui/dialog"
-import { Input } from "@/src/components/ui/input"
-import { Textarea } from "@/src/components/ui/textarea"
-import { Label } from "@/src/components/ui/label"
-import { Checkbox } from "@/src/components/ui/checkbox"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select"
-import AppLayout from "@/src/components/app-layout"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  Briefcase,
+  GraduationCap,
+  MapPin,
+  Mail,
+  Calendar,
+  Edit,
+  X,
+} from "lucide-react";
+import { Button } from "@/src/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/src/components/ui/card";
+import { Badge } from "@/src/components/ui/badge";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/src/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/src/components/ui/dialog";
+import { Input } from "@/src/components/ui/input";
+import { Textarea } from "@/src/components/ui/textarea";
+import { Label } from "@/src/components/ui/label";
+import { Checkbox } from "@/src/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/src/components/ui/select";
+import AppLayout from "@/src/components/app-layout";
 
 export default function ProfilePage() {
-  const router = useRouter()
-  const params = useParams()
-  const [profile, setProfile] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isCurrentUser, setIsCurrentUser] = useState(false)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [editTab, setEditTab] = useState("basic")
+  const router = useRouter();
+  const params = useParams();
+  const [profile, setProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCurrentUser, setIsCurrentUser] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editTab, setEditTab] = useState("basic");
 
   // Form states for editing
-  const [editedProfile, setEditedProfile] = useState<any>({})
-  const [newSkill, setNewSkill] = useState("")
+  const [editedProfile, setEditedProfile] = useState<any>({});
+  const [newSkill, setNewSkill] = useState("");
   const [newExperience, setNewExperience] = useState({
-    title: "",
+    jobTitle: "",
     company: "",
     description: "",
     startDate: "",
     endDate: "",
     current: false,
-  })
+  });
   const [newEducation, setNewEducation] = useState({
     degree: "",
     institution: "",
     startDate: "",
     endDate: "",
     current: false,
-  })
+  });
   const [newAchievement, setNewAchievement] = useState({
     title: "",
     type: "",
     description: "",
     date: "",
     image: "",
-  })
+  });
 
   useEffect(() => {
     const fetchProfile = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
 
       try {
         // For demo purposes, we'll use mock data
         // In a real app, you would fetch from an API
-        const currentUser = JSON.parse(localStorage.getItem("user") || "{}")
+        const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
         // Check if this is the current user's profile
-        const isMe = params.id === "me" || params.id === currentUser.id
-        setIsCurrentUser(isMe)
+        const isMe = params.id === "me" || params.id === currentUser.id;
+        setIsCurrentUser(isMe);
 
         if (isMe) {
-          setProfile(currentUser)
-          setEditedProfile(JSON.parse(JSON.stringify(currentUser)))
+          setProfile(currentUser);
+          setEditedProfile(JSON.parse(JSON.stringify(currentUser)));
         } else {
           // Mock data for other profiles
           // In a real app, you would fetch from an API based on the ID
@@ -88,17 +119,19 @@ export default function ProfilePage() {
               skills: ["JavaScript", "React", "Node.js", "AWS", "GraphQL"],
               experiences: [
                 {
-                  title: "Senior Software Engineer",
+                  jobTitle: "Senior Software Engineer",
                   company: "Tech Innovations Inc.",
-                  description: "Leading the frontend team for the company's main product.",
+                  description:
+                    "Leading the frontend team for the company's main product.",
                   startDate: "2020-06",
                   endDate: "",
                   current: true,
                 },
                 {
-                  title: "Software Engineer",
+                  jobTitle: "Software Engineer",
                   company: "WebDev Solutions",
-                  description: "Developed and maintained client websites and applications.",
+                  description:
+                    "Developed and maintained client websites and applications.",
                   startDate: "2018-01",
                   endDate: "2020-05",
                   current: false,
@@ -117,7 +150,8 @@ export default function ProfilePage() {
                 {
                   title: "Innovation Award",
                   type: "Professional",
-                  description: "Received for developing a new algorithm that improved system performance by 40%.",
+                  description:
+                    "Received for developing a new algorithm that improved system performance by 40%.",
                   date: "2021",
                   image: "/placeholder.svg?height=100&width=100",
                 },
@@ -138,7 +172,7 @@ export default function ProfilePage() {
               skills: ["C++", "Embedded Systems", "PCB Design", "IoT", "FPGA"],
               experiences: [
                 {
-                  title: "Hardware Engineer",
+                  jobTitle: "Hardware Engineer",
                   company: "ElectroTech Corp",
                   description: "Designing and testing new IoT devices.",
                   startDate: "2020-08",
@@ -166,127 +200,142 @@ export default function ProfilePage() {
                 {
                   title: "Best Thesis Award",
                   type: "Academic",
-                  description: "Awarded for outstanding master's thesis on energy-efficient IoT devices.",
+                  description:
+                    "Awarded for outstanding master's thesis on energy-efficient IoT devices.",
                   date: "2020",
                   image: "/placeholder.svg?height=100&width=100",
                 },
               ],
             },
-          ]
+          ];
 
-          const foundProfile = mockProfiles.find((p) => p.id === params.id)
+          const foundProfile = mockProfiles.find((p) => p.id === params.id);
           if (foundProfile) {
-            setProfile(foundProfile)
+            setProfile(foundProfile);
           } else {
             // If profile not found, redirect to search
-            router.push("/search")
+            router.push("/search");
           }
         }
       } catch (error) {
-        console.error("Error fetching profile:", error)
+        console.error("Error fetching profile:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchProfile()
-  }, [params.id, router])
+    fetchProfile();
+  }, [params.id, router]);
 
   const handleSaveProfile = () => {
     // In a real app, you would send this to an API
     // For demo purposes, we'll just update localStorage
     if (isCurrentUser) {
-      localStorage.setItem("user", JSON.stringify(editedProfile))
-      setProfile(editedProfile)
+      localStorage.setItem("user", JSON.stringify(editedProfile));
+      setProfile(editedProfile);
     }
-    setIsEditDialogOpen(false)
-  }
+    setIsEditDialogOpen(false);
+  };
 
   const handleAddSkill = () => {
     if (newSkill.trim()) {
-      const updatedSkills = [...(editedProfile.skills || []), newSkill.trim()]
-      setEditedProfile({ ...editedProfile, skills: updatedSkills })
-      setNewSkill("")
+      const updatedSkills = [...(editedProfile.skills || []), newSkill.trim()];
+      setEditedProfile({ ...editedProfile, skills: updatedSkills });
+      setNewSkill("");
     }
-  }
+  };
 
   const handleRemoveSkill = (skillToRemove: string) => {
-    const updatedSkills = (editedProfile.skills || []).filter((skill: string) => skill !== skillToRemove)
-    setEditedProfile({ ...editedProfile, skills: updatedSkills })
-  }
+    const updatedSkills = (editedProfile.skills || []).filter(
+      (skill: string) => skill !== skillToRemove
+    );
+    setEditedProfile({ ...editedProfile, skills: updatedSkills });
+  };
 
   const handleAddExperience = () => {
-    if (newExperience.title && newExperience.company) {
-      const updatedExperiences = [...(editedProfile.experiences || []), { ...newExperience }]
-      setEditedProfile({ ...editedProfile, experiences: updatedExperiences })
+    if (newExperience.jobTitle && newExperience.company) {
+      const updatedExperiences = [
+        ...(editedProfile.experiences || []),
+        { ...newExperience },
+      ];
+      setEditedProfile({ ...editedProfile, experiences: updatedExperiences });
       setNewExperience({
-        title: "",
+        jobTitle: "",
         company: "",
         description: "",
         startDate: "",
         endDate: "",
         current: false,
-      })
+      });
     }
-  }
+  };
 
   const handleRemoveExperience = (index: number) => {
-    const updatedExperiences = [...(editedProfile.experiences || [])]
-    updatedExperiences.splice(index, 1)
-    setEditedProfile({ ...editedProfile, experiences: updatedExperiences })
-  }
+    const updatedExperiences = [...(editedProfile.experiences || [])];
+    updatedExperiences.splice(index, 1);
+    setEditedProfile({ ...editedProfile, experiences: updatedExperiences });
+  };
 
   const handleAddEducation = () => {
     if (newEducation.degree && newEducation.institution) {
-      const updatedEducation = [...(editedProfile.education || []), { ...newEducation }]
-      setEditedProfile({ ...editedProfile, education: updatedEducation })
+      const updatedEducation = [
+        ...(editedProfile.education || []),
+        { ...newEducation },
+      ];
+      setEditedProfile({ ...editedProfile, education: updatedEducation });
       setNewEducation({
         degree: "",
         institution: "",
         startDate: "",
         endDate: "",
         current: false,
-      })
+      });
     }
-  }
+  };
 
   const handleRemoveEducation = (index: number) => {
-    const updatedEducation = [...(editedProfile.education || [])]
-    updatedEducation.splice(index, 1)
-    setEditedProfile({ ...editedProfile, education: updatedEducation })
-  }
+    const updatedEducation = [...(editedProfile.education || [])];
+    updatedEducation.splice(index, 1);
+    setEditedProfile({ ...editedProfile, education: updatedEducation });
+  };
 
   const handleAddAchievement = () => {
     if (newAchievement.title && newAchievement.type) {
-      const updatedAchievements = [...(editedProfile.achievements || []), { ...newAchievement }]
-      setEditedProfile({ ...editedProfile, achievements: updatedAchievements })
+      const updatedAchievements = [
+        ...(editedProfile.achievements || []),
+        { ...newAchievement },
+      ];
+      setEditedProfile({ ...editedProfile, achievements: updatedAchievements });
       setNewAchievement({
         title: "",
         type: "",
         description: "",
         date: "",
         image: "",
-      })
+      });
     }
-  }
+  };
 
   const handleRemoveAchievement = (index: number) => {
-    const updatedAchievements = [...(editedProfile.achievements || [])]
-    updatedAchievements.splice(index, 1)
-    setEditedProfile({ ...editedProfile, achievements: updatedAchievements })
-  }
+    const updatedAchievements = [...(editedProfile.achievements || [])];
+    updatedAchievements.splice(index, 1);
+    setEditedProfile({ ...editedProfile, achievements: updatedAchievements });
+  };
 
   const formatDate = (dateString: string) => {
-    if (!dateString) return ""
+    if (!dateString) return "";
 
     try {
-      const [year, month] = dateString.split("-")
-      const date = new Date(Number.parseInt(year), Number.parseInt(month) - 1)
-      return date.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+      const [year, month] = dateString.split("-");
+      const date = new Date(Number.parseInt(year), Number.parseInt(month) - 1);
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric",
+      });
     } catch (e) {
-      return dateString
+      return dateString;
     }
-  }
+  };
 
   if (isLoading) {
     return (
@@ -300,7 +349,7 @@ export default function ProfilePage() {
           </div>
         </div>
       </AppLayout>
-    )
+    );
   }
 
   if (!profile) {
@@ -308,13 +357,15 @@ export default function ProfilePage() {
       <AppLayout>
         <div className="container mx-auto py-8 px-4 text-center">
           <h1 className="text-2xl font-bold mb-4">Profile not found</h1>
-          <p className="mb-4">The profile you are looking for does not exist or has been removed.</p>
+          <p className="mb-4">
+            The profile you are looking for does not exist or has been removed.
+          </p>
           <Button asChild>
             <Link href="/search">Search Alumni</Link>
           </Button>
         </div>
       </AppLayout>
-    )
+    );
   }
 
   return (
@@ -326,14 +377,20 @@ export default function ProfilePage() {
               <div className="flex flex-col items-center gap-4">
                 <div className="relative h-32 w-32 rounded-full overflow-hidden">
                   <Image
-                    src={profile.profileImage || "/placeholder.svg?height=128&width=128"}
-                    alt={profile.name}
+                    src={
+                      profile.profileImage ||
+                      "/placeholder.svg?height=128&width=128"
+                    }
+                    alt={profile.fullName}
                     fill
                     className="object-cover"
                   />
                 </div>
                 {isCurrentUser && (
-                  <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+                  <Dialog
+                    open={isEditDialogOpen}
+                    onOpenChange={setIsEditDialogOpen}
+                  >
                     <DialogTrigger asChild>
                       <Button variant="outline" className="gap-2">
                         <Edit className="h-4 w-4" />
@@ -344,13 +401,21 @@ export default function ProfilePage() {
                       <DialogHeader>
                         <DialogTitle>Edit Profile</DialogTitle>
                       </DialogHeader>
-                      <Tabs value={editTab} onValueChange={setEditTab} className="w-full">
+                      <Tabs
+                        value={editTab}
+                        onValueChange={setEditTab}
+                        className="w-full"
+                      >
                         <TabsList className="grid grid-cols-5 mb-4">
                           <TabsTrigger value="basic">Basic Info</TabsTrigger>
                           <TabsTrigger value="skills">Skills</TabsTrigger>
-                          <TabsTrigger value="experience">Experience</TabsTrigger>
+                          <TabsTrigger value="experience">
+                            Experience
+                          </TabsTrigger>
                           <TabsTrigger value="education">Education</TabsTrigger>
-                          <TabsTrigger value="achievements">Achievements</TabsTrigger>
+                          <TabsTrigger value="achievements">
+                            Achievements
+                          </TabsTrigger>
                         </TabsList>
 
                         <TabsContent value="basic" className="space-y-4">
@@ -359,8 +424,13 @@ export default function ProfilePage() {
                               <Label htmlFor="name">Full Name</Label>
                               <Input
                                 id="name"
-                                value={editedProfile.name || ""}
-                                onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value })}
+                                value={editedProfile.fullName || ""}
+                                onChange={(e) =>
+                                  setEditedProfile({
+                                    ...editedProfile,
+                                    fullName: e.target.value,
+                                  })
+                                }
                               />
                             </div>
 
@@ -370,7 +440,12 @@ export default function ProfilePage() {
                                 id="email"
                                 type="email"
                                 value={editedProfile.email || ""}
-                                onChange={(e) => setEditedProfile({ ...editedProfile, email: e.target.value })}
+                                onChange={(e) =>
+                                  setEditedProfile({
+                                    ...editedProfile,
+                                    email: e.target.value,
+                                  })
+                                }
                               />
                             </div>
 
@@ -378,13 +453,20 @@ export default function ProfilePage() {
                               <Label htmlFor="role">Role</Label>
                               <Select
                                 value={editedProfile.role || ""}
-                                onValueChange={(value) => setEditedProfile({ ...editedProfile, role: value })}
+                                onValueChange={(value) =>
+                                  setEditedProfile({
+                                    ...editedProfile,
+                                    role: value,
+                                  })
+                                }
                               >
                                 <SelectTrigger id="role">
                                   <SelectValue placeholder="Select role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="student">Student</SelectItem>
+                                  <SelectItem value="student">
+                                    Student
+                                  </SelectItem>
                                   <SelectItem value="alumni">Alumni</SelectItem>
                                 </SelectContent>
                               </Select>
@@ -395,16 +477,28 @@ export default function ProfilePage() {
                               <Input
                                 id="location"
                                 value={editedProfile.location || ""}
-                                onChange={(e) => setEditedProfile({ ...editedProfile, location: e.target.value })}
+                                onChange={(e) =>
+                                  setEditedProfile({
+                                    ...editedProfile,
+                                    location: e.target.value,
+                                  })
+                                }
                               />
                             </div>
 
                             <div className="space-y-2">
-                              <Label htmlFor="graduationYear">Graduation Year</Label>
+                              <Label htmlFor="graduationYear">
+                                Graduation Year
+                              </Label>
                               <Input
                                 id="graduationYear"
                                 value={editedProfile.graduationYear || ""}
-                                onChange={(e) => setEditedProfile({ ...editedProfile, graduationYear: e.target.value })}
+                                onChange={(e) =>
+                                  setEditedProfile({
+                                    ...editedProfile,
+                                    graduationYear: e.target.value,
+                                  })
+                                }
                               />
                             </div>
 
@@ -413,18 +507,30 @@ export default function ProfilePage() {
                               <Input
                                 id="degree"
                                 value={editedProfile.degree || ""}
-                                onChange={(e) => setEditedProfile({ ...editedProfile, degree: e.target.value })}
+                                onChange={(e) =>
+                                  setEditedProfile({
+                                    ...editedProfile,
+                                    degree: e.target.value,
+                                  })
+                                }
                               />
                             </div>
 
                             {editedProfile.role === "alumni" && (
                               <>
                                 <div className="space-y-2">
-                                  <Label htmlFor="currentJob">Current Job</Label>
+                                  <Label htmlFor="currentJob">
+                                    Current Job
+                                  </Label>
                                   <Input
                                     id="currentJob"
                                     value={editedProfile.currentJob || ""}
-                                    onChange={(e) => setEditedProfile({ ...editedProfile, currentJob: e.target.value })}
+                                    onChange={(e) =>
+                                      setEditedProfile({
+                                        ...editedProfile,
+                                        currentJob: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
 
@@ -433,7 +539,12 @@ export default function ProfilePage() {
                                   <Input
                                     id="company"
                                     value={editedProfile.company || ""}
-                                    onChange={(e) => setEditedProfile({ ...editedProfile, company: e.target.value })}
+                                    onChange={(e) =>
+                                      setEditedProfile({
+                                        ...editedProfile,
+                                        company: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
                               </>
@@ -446,7 +557,12 @@ export default function ProfilePage() {
                               id="bio"
                               rows={4}
                               value={editedProfile.bio || ""}
-                              onChange={(e) => setEditedProfile({ ...editedProfile, bio: e.target.value })}
+                              onChange={(e) =>
+                                setEditedProfile({
+                                  ...editedProfile,
+                                  bio: e.target.value,
+                                })
+                              }
                             />
                           </div>
                         </TabsContent>
@@ -459,8 +575,8 @@ export default function ProfilePage() {
                               onChange={(e) => setNewSkill(e.target.value)}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter") {
-                                  e.preventDefault()
-                                  handleAddSkill()
+                                  e.preventDefault();
+                                  handleAddSkill();
                                 }
                               }}
                             />
@@ -470,19 +586,24 @@ export default function ProfilePage() {
                           </div>
 
                           <div className="flex flex-wrap gap-2 mt-4">
-                            {(editedProfile.skills || []).map((skill: string, index: number) => (
-                              <Badge key={index} className="flex items-center gap-1 px-3 py-1">
-                                {skill}
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveSkill(skill)}
-                                  className="text-xs rounded-full hover:bg-primary/20 p-1"
+                            {(editedProfile.skills || []).map(
+                              (skill: string, index: number) => (
+                                <Badge
+                                  key={index}
+                                  className="flex items-center gap-1 px-3 py-1"
                                 >
-                                  <X className="h-3 w-3" />
-                                  <span className="sr-only">Remove</span>
-                                </button>
-                              </Badge>
-                            ))}
+                                  {skill}
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveSkill(skill)}
+                                    className="text-xs rounded-full hover:bg-primary/20 p-1"
+                                  >
+                                    <X className="h-3 w-3" />
+                                    <span className="sr-only">Remove</span>
+                                  </button>
+                                </Badge>
+                              )
+                            )}
                           </div>
                         </TabsContent>
 
@@ -497,8 +618,13 @@ export default function ProfilePage() {
                                   <Label htmlFor="exp-title">Job Title</Label>
                                   <Input
                                     id="exp-title"
-                                    value={newExperience.title}
-                                    onChange={(e) => setNewExperience({ ...newExperience, title: e.target.value })}
+                                    value={newExperience.jobTitle}
+                                    onChange={(e) =>
+                                      setNewExperience({
+                                        ...newExperience,
+                                        jobTitle: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
 
@@ -507,7 +633,12 @@ export default function ProfilePage() {
                                   <Input
                                     id="exp-company"
                                     value={newExperience.company}
-                                    onChange={(e) => setNewExperience({ ...newExperience, company: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewExperience({
+                                        ...newExperience,
+                                        company: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
 
@@ -517,7 +648,12 @@ export default function ProfilePage() {
                                     id="exp-start"
                                     type="month"
                                     value={newExperience.startDate}
-                                    onChange={(e) => setNewExperience({ ...newExperience, startDate: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewExperience({
+                                        ...newExperience,
+                                        startDate: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
 
@@ -527,7 +663,12 @@ export default function ProfilePage() {
                                     id="exp-end"
                                     type="month"
                                     value={newExperience.endDate}
-                                    onChange={(e) => setNewExperience({ ...newExperience, endDate: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewExperience({
+                                        ...newExperience,
+                                        endDate: e.target.value,
+                                      })
+                                    }
                                     disabled={newExperience.current}
                                   />
                                 </div>
@@ -541,7 +682,9 @@ export default function ProfilePage() {
                                     setNewExperience({
                                       ...newExperience,
                                       current: checked as boolean,
-                                      endDate: checked ? "" : newExperience.endDate,
+                                      endDate: checked
+                                        ? ""
+                                        : newExperience.endDate,
                                     })
                                   }
                                 />
@@ -554,44 +697,67 @@ export default function ProfilePage() {
                               </div>
 
                               <div className="space-y-2">
-                                <Label htmlFor="exp-description">Description</Label>
+                                <Label htmlFor="exp-description">
+                                  Description
+                                </Label>
                                 <Textarea
                                   id="exp-description"
                                   rows={3}
                                   value={newExperience.description}
-                                  onChange={(e) => setNewExperience({ ...newExperience, description: e.target.value })}
+                                  onChange={(e) =>
+                                    setNewExperience({
+                                      ...newExperience,
+                                      description: e.target.value,
+                                    })
+                                  }
                                 />
                               </div>
 
-                              <Button type="button" onClick={handleAddExperience}>
+                              <Button
+                                type="button"
+                                onClick={handleAddExperience}
+                              >
                                 Add Experience
                               </Button>
                             </CardContent>
                           </Card>
 
                           <div className="space-y-4 mt-4">
-                            {(editedProfile.experiences || []).map((exp: any, index: number) => (
-                              <Card key={index}>
-                                <CardHeader className="pb-2">
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <CardTitle>{exp.title}</CardTitle>
-                                      <CardDescription>{exp.company}</CardDescription>
+                            {(editedProfile.experiences || []).map(
+                              (exp: any, index: number) => (
+                                <Card key={index}>
+                                  <CardHeader className="pb-2">
+                                    <div className="flex justify-between items-start">
+                                      <div>
+                                        <CardTitle>{exp.jobTitle}</CardTitle>
+                                        <CardDescription>
+                                          {exp.company}
+                                        </CardDescription>
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() =>
+                                          handleRemoveExperience(index)
+                                        }
+                                      >
+                                        <X className="h-4 w-4" />
+                                        <span className="sr-only">Remove</span>
+                                      </Button>
                                     </div>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveExperience(index)}>
-                                      <X className="h-4 w-4" />
-                                      <span className="sr-only">Remove</span>
-                                    </Button>
-                                  </div>
-                                </CardHeader>
-                                <CardContent>
-                                  <p className="text-sm text-muted-foreground mb-2">
-                                    {formatDate(exp.startDate)} - {exp.current ? "Present" : formatDate(exp.endDate)}
-                                  </p>
-                                  <p className="text-sm">{exp.description}</p>
-                                </CardContent>
-                              </Card>
-                            ))}
+                                  </CardHeader>
+                                  <CardContent>
+                                    <p className="text-sm text-muted-foreground mb-2">
+                                      {formatDate(exp.startDate)} -{" "}
+                                      {exp.current
+                                        ? "Present"
+                                        : formatDate(exp.endDate)}
+                                    </p>
+                                    <p className="text-sm">{exp.description}</p>
+                                  </CardContent>
+                                </Card>
+                              )
+                            )}
                           </div>
                         </TabsContent>
 
@@ -603,20 +769,34 @@ export default function ProfilePage() {
                             <CardContent className="space-y-4">
                               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                  <Label htmlFor="edu-degree">Degree/Certificate</Label>
+                                  <Label htmlFor="edu-degree">
+                                    Degree/Certificate
+                                  </Label>
                                   <Input
                                     id="edu-degree"
                                     value={newEducation.degree}
-                                    onChange={(e) => setNewEducation({ ...newEducation, degree: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewEducation({
+                                        ...newEducation,
+                                        degree: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
 
                                 <div className="space-y-2">
-                                  <Label htmlFor="edu-institution">School/University</Label>
+                                  <Label htmlFor="edu-institution">
+                                    School/University
+                                  </Label>
                                   <Input
                                     id="edu-institution"
                                     value={newEducation.institution}
-                                    onChange={(e) => setNewEducation({ ...newEducation, institution: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewEducation({
+                                        ...newEducation,
+                                        institution: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
 
@@ -626,7 +806,12 @@ export default function ProfilePage() {
                                     id="edu-start"
                                     type="month"
                                     value={newEducation.startDate}
-                                    onChange={(e) => setNewEducation({ ...newEducation, startDate: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewEducation({
+                                        ...newEducation,
+                                        startDate: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
 
@@ -636,7 +821,12 @@ export default function ProfilePage() {
                                     id="edu-end"
                                     type="month"
                                     value={newEducation.endDate}
-                                    onChange={(e) => setNewEducation({ ...newEducation, endDate: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewEducation({
+                                        ...newEducation,
+                                        endDate: e.target.value,
+                                      })
+                                    }
                                     disabled={newEducation.current}
                                   />
                                 </div>
@@ -650,7 +840,9 @@ export default function ProfilePage() {
                                     setNewEducation({
                                       ...newEducation,
                                       current: checked as boolean,
-                                      endDate: checked ? "" : newEducation.endDate,
+                                      endDate: checked
+                                        ? ""
+                                        : newEducation.endDate,
                                     })
                                   }
                                 />
@@ -662,34 +854,50 @@ export default function ProfilePage() {
                                 </label>
                               </div>
 
-                              <Button type="button" onClick={handleAddEducation}>
+                              <Button
+                                type="button"
+                                onClick={handleAddEducation}
+                              >
                                 Add Education
                               </Button>
                             </CardContent>
                           </Card>
 
                           <div className="space-y-4 mt-4">
-                            {(editedProfile.education || []).map((edu: any, index: number) => (
-                              <Card key={index}>
-                                <CardHeader className="pb-2">
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <CardTitle>{edu.degree}</CardTitle>
-                                      <CardDescription>{edu.institution}</CardDescription>
+                            {(editedProfile.education || []).map(
+                              (edu: any, index: number) => (
+                                <Card key={index}>
+                                  <CardHeader className="pb-2">
+                                    <div className="flex justify-between items-start">
+                                      <div>
+                                        <CardTitle>{edu.degree}</CardTitle>
+                                        <CardDescription>
+                                          {edu.institution}
+                                        </CardDescription>
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() =>
+                                          handleRemoveEducation(index)
+                                        }
+                                      >
+                                        <X className="h-4 w-4" />
+                                        <span className="sr-only">Remove</span>
+                                      </Button>
                                     </div>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveEducation(index)}>
-                                      <X className="h-4 w-4" />
-                                      <span className="sr-only">Remove</span>
-                                    </Button>
-                                  </div>
-                                </CardHeader>
-                                <CardContent>
-                                  <p className="text-sm text-muted-foreground">
-                                    {formatDate(edu.startDate)} - {edu.current ? "Present" : formatDate(edu.endDate)}
-                                  </p>
-                                </CardContent>
-                              </Card>
-                            ))}
+                                  </CardHeader>
+                                  <CardContent>
+                                    <p className="text-sm text-muted-foreground">
+                                      {formatDate(edu.startDate)} -{" "}
+                                      {edu.current
+                                        ? "Present"
+                                        : formatDate(edu.endDate)}
+                                    </p>
+                                  </CardContent>
+                                </Card>
+                              )
+                            )}
                           </div>
                         </TabsContent>
 
@@ -705,7 +913,12 @@ export default function ProfilePage() {
                                   <Input
                                     id="ach-title"
                                     value={newAchievement.title}
-                                    onChange={(e) => setNewAchievement({ ...newAchievement, title: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewAchievement({
+                                        ...newAchievement,
+                                        title: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
 
@@ -713,18 +926,35 @@ export default function ProfilePage() {
                                   <Label htmlFor="ach-type">Type</Label>
                                   <Select
                                     value={newAchievement.type}
-                                    onValueChange={(value) => setNewAchievement({ ...newAchievement, type: value })}
+                                    onValueChange={(value) =>
+                                      setNewAchievement({
+                                        ...newAchievement,
+                                        type: value,
+                                      })
+                                    }
                                   >
                                     <SelectTrigger id="ach-type">
                                       <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="Academic">Academic</SelectItem>
-                                      <SelectItem value="Professional">Professional</SelectItem>
-                                      <SelectItem value="Research">Research</SelectItem>
-                                      <SelectItem value="Innovation">Innovation</SelectItem>
-                                      <SelectItem value="Leadership">Leadership</SelectItem>
-                                      <SelectItem value="Other">Other</SelectItem>
+                                      <SelectItem value="Academic">
+                                        Academic
+                                      </SelectItem>
+                                      <SelectItem value="Professional">
+                                        Professional
+                                      </SelectItem>
+                                      <SelectItem value="Research">
+                                        Research
+                                      </SelectItem>
+                                      <SelectItem value="Innovation">
+                                        Innovation
+                                      </SelectItem>
+                                      <SelectItem value="Leadership">
+                                        Leadership
+                                      </SelectItem>
+                                      <SelectItem value="Other">
+                                        Other
+                                      </SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </div>
@@ -735,79 +965,116 @@ export default function ProfilePage() {
                                     id="ach-date"
                                     type="month"
                                     value={newAchievement.date}
-                                    onChange={(e) => setNewAchievement({ ...newAchievement, date: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewAchievement({
+                                        ...newAchievement,
+                                        date: e.target.value,
+                                      })
+                                    }
                                   />
                                 </div>
 
                                 <div className="space-y-2">
-                                  <Label htmlFor="ach-image">Image URL (Optional)</Label>
+                                  <Label htmlFor="ach-image">
+                                    Image URL (Optional)
+                                  </Label>
                                   <Input
                                     id="ach-image"
                                     value={newAchievement.image}
-                                    onChange={(e) => setNewAchievement({ ...newAchievement, image: e.target.value })}
+                                    onChange={(e) =>
+                                      setNewAchievement({
+                                        ...newAchievement,
+                                        image: e.target.value,
+                                      })
+                                    }
                                     placeholder="https://example.com/image.jpg"
                                   />
                                 </div>
                               </div>
 
                               <div className="space-y-2">
-                                <Label htmlFor="ach-description">Description</Label>
+                                <Label htmlFor="ach-description">
+                                  Description
+                                </Label>
                                 <Textarea
                                   id="ach-description"
                                   rows={3}
                                   value={newAchievement.description}
                                   onChange={(e) =>
-                                    setNewAchievement({ ...newAchievement, description: e.target.value })
+                                    setNewAchievement({
+                                      ...newAchievement,
+                                      description: e.target.value,
+                                    })
                                   }
                                 />
                               </div>
 
-                              <Button type="button" onClick={handleAddAchievement}>
+                              <Button
+                                type="button"
+                                onClick={handleAddAchievement}
+                              >
                                 Add Achievement
                               </Button>
                             </CardContent>
                           </Card>
 
                           <div className="space-y-4 mt-4">
-                            {(editedProfile.achievements || []).map((ach: any, index: number) => (
-                              <Card key={index}>
-                                <CardHeader className="pb-2">
-                                  <div className="flex justify-between items-start">
-                                    <div>
-                                      <CardTitle>{ach.title}</CardTitle>
-                                      <CardDescription>{ach.type}</CardDescription>
+                            {(editedProfile.achievements || []).map(
+                              (ach: any, index: number) => (
+                                <Card key={index}>
+                                  <CardHeader className="pb-2">
+                                    <div className="flex justify-between items-start">
+                                      <div>
+                                        <CardTitle>{ach.title}</CardTitle>
+                                        <CardDescription>
+                                          {ach.type}
+                                        </CardDescription>
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() =>
+                                          handleRemoveAchievement(index)
+                                        }
+                                      >
+                                        <X className="h-4 w-4" />
+                                        <span className="sr-only">Remove</span>
+                                      </Button>
                                     </div>
-                                    <Button variant="ghost" size="icon" onClick={() => handleRemoveAchievement(index)}>
-                                      <X className="h-4 w-4" />
-                                      <span className="sr-only">Remove</span>
-                                    </Button>
-                                  </div>
-                                </CardHeader>
-                                <CardContent>
-                                  <p className="text-sm text-muted-foreground mb-2">{formatDate(ach.date)}</p>
-                                  <p className="text-sm">{ach.description}</p>
-                                  {ach.image && (
-                                    <div className="mt-2 h-20 w-20 relative">
-                                      <Image
-                                        src={ach.image || "/placeholder.svg"}
-                                        alt={ach.title}
-                                        fill
-                                        className="object-cover rounded-md"
-                                      />
-                                    </div>
-                                  )}
-                                </CardContent>
-                              </Card>
-                            ))}
+                                  </CardHeader>
+                                  <CardContent>
+                                    <p className="text-sm text-muted-foreground mb-2">
+                                      {formatDate(ach.date)}
+                                    </p>
+                                    <p className="text-sm">{ach.description}</p>
+                                    {ach.image && (
+                                      <div className="mt-2 h-20 w-20 relative">
+                                        <Image
+                                          src={ach.image || "/placeholder.svg"}
+                                          alt={ach.title}
+                                          fill
+                                          className="object-cover rounded-md"
+                                        />
+                                      </div>
+                                    )}
+                                  </CardContent>
+                                </Card>
+                              )
+                            )}
                           </div>
                         </TabsContent>
                       </Tabs>
 
                       <div className="flex justify-end gap-2 mt-4">
-                        <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+                        <Button
+                          variant="outline"
+                          onClick={() => setIsEditDialogOpen(false)}
+                        >
                           Cancel
                         </Button>
-                        <Button onClick={handleSaveProfile}>Save Changes</Button>
+                        <Button onClick={handleSaveProfile}>
+                          Save Changes
+                        </Button>
                       </div>
                     </DialogContent>
                   </Dialog>
@@ -815,10 +1082,10 @@ export default function ProfilePage() {
               </div>
 
               <div className="flex-1">
-                <h1 className="text-2xl font-bold">{profile.name}</h1>
+                <h1 className="text-2xl font-bold">{profile.fullName}</h1>
                 <p className="text-muted-foreground mb-4">
-                  {profile.role === "alumni" ? "Alumni" : "Student"} • {profile.degree} • Class of{" "}
-                  {profile.graduationYear}
+                  {profile.role === "alumni" ? "Alumni" : "Student"} •{" "}
+                  {profile.degree} • Class of {profile.graduationYear}
                 </p>
 
                 {profile.role === "alumni" && profile.currentJob && (
@@ -867,18 +1134,30 @@ export default function ProfilePage() {
               {profile.experiences && profile.experiences.length > 0 ? (
                 <div className="space-y-6">
                   {profile.experiences.map((exp: any, index: number) => (
-                    <div key={index} className="border-b pb-4 last:border-0 last:pb-0">
-                      <h3 className="font-medium">{exp.title}</h3>
-                      <p className="text-sm text-muted-foreground">{exp.company}</p>
+                    <div
+                      key={index}
+                      className="border-b pb-4 last:border-0 last:pb-0"
+                    >
+                      <h3 className="font-medium">{exp.jobTitle}</h3>
                       <p className="text-sm text-muted-foreground">
-                        {formatDate(exp.startDate)} - {exp.current ? "Present" : formatDate(exp.endDate)}
+                        {exp.company}
                       </p>
-                      {exp.description && <p className="mt-2 text-sm">{exp.description}</p>}
+                      <p className="text-sm text-muted-foreground">
+                        {exp.startMonth} {exp.startYear} -{" "}
+                        {exp.current
+                          ? "present"
+                          : `${exp.endMonth} ${exp.endYear}`}
+                      </p>
+                      {exp.description && (
+                        <p className="mt-2 text-sm">{exp.description}</p>
+                      )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-muted-foreground text-sm">No experience added yet.</p>
+                <p className="text-muted-foreground text-sm">
+                  No experience added yet.
+                </p>
               )}
             </CardContent>
           </Card>
@@ -898,7 +1177,9 @@ export default function ProfilePage() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">No skills added yet.</p>
+                  <p className="text-muted-foreground text-sm">
+                    No skills added yet.
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -911,17 +1192,25 @@ export default function ProfilePage() {
                 {profile.education && profile.education.length > 0 ? (
                   <div className="space-y-4">
                     {profile.education.map((edu: any, index: number) => (
-                      <div key={index} className="border-b pb-4 last:border-0 last:pb-0">
+                      <div
+                        key={index}
+                        className="border-b pb-4 last:border-0 last:pb-0"
+                      >
                         <h3 className="font-medium">{edu.degree}</h3>
-                        <p className="text-sm text-muted-foreground">{edu.institution}</p>
                         <p className="text-sm text-muted-foreground">
-                          {formatDate(edu.startDate)} - {edu.current ? "Present" : formatDate(edu.endDate)}
+                          {edu.institution}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {edu.startMonth} {edu.startYear} -{" "}
+                          {edu.current ? "Present" : `${edu.endMonth} ${edu.endYear}`}
                         </p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted-foreground text-sm">No education added yet.</p>
+                  <p className="text-muted-foreground text-sm">
+                    No education added yet.
+                  </p>
                 )}
               </CardContent>
             </Card>
@@ -952,18 +1241,22 @@ export default function ProfilePage() {
                           />
                         </div>
                       )}
-                      <p className="text-sm text-muted-foreground mb-2">{formatDate(ach.date)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        {formatDate(ach.date)}
+                      </p>
                       <p className="text-sm">{ach.description}</p>
                     </CardContent>
                   </Card>
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground text-sm">No achievements added yet.</p>
+              <p className="text-muted-foreground text-sm">
+                No achievements added yet.
+              </p>
             )}
           </CardContent>
         </Card>
       </div>
     </AppLayout>
-  )
+  );
 }

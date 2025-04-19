@@ -95,7 +95,7 @@ export default function ProfileSetupPage() {
   // Experience
   const [experiences, setExperiences] = useState<any[]>([])
   const [newExperience, setNewExperience] = useState({
-    title: "",
+    jobTitle: "",
     company: "",
     description: "",
     startMonth: "",
@@ -245,7 +245,7 @@ export default function ProfileSetupPage() {
         skills: ["JavaScript", "React", "Node.js", "Python", "Machine Learning"],
         experiences: [
           {
-            title: "Software Engineer",
+            jobTitle: "Software Engineer",
             company: "Tech Company",
             description: "Working on full-stack web development projects.",
             startMonth: "January",
@@ -324,11 +324,11 @@ export default function ProfileSetupPage() {
 
   // Add a new experience
   const addExperience = () => {
-    if (!newExperience.title.trim() || !newExperience.company.trim()) return
+    if (!newExperience.jobTitle.trim() || !newExperience.company.trim()) return
 
     setExperiences((prev) => [...prev, { ...newExperience, id: Date.now() }])
     setNewExperience({
-      title: "",
+      jobTitle: "",
       company: "",
       description: "",
       startMonth: "",
@@ -875,7 +875,7 @@ export default function ProfileSetupPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between">
                             <div>
-                              <h3 className="font-bold">{exp.title}</h3>
+                              <h3 className="font-bold">{exp.jobTitle}</h3>
                               <p className="text-muted-foreground">{exp.company}</p>
                             </div>
                             <p className="text-sm text-muted-foreground">
@@ -897,7 +897,7 @@ export default function ProfileSetupPage() {
                             <Input
                               id="title"
                               name="title"
-                              value={newExperience.title}
+                              value={newExperience.jobTitle}
                               onChange={handleExperienceChange}
                               placeholder="e.g. Software Engineer"
                             />
@@ -1270,7 +1270,7 @@ export default function ProfileSetupPage() {
                         <div className="space-y-2">
                           <div className="flex justify-between">
                             <div>
-                              <h3 className="font-bold">{achievement.title}</h3>
+                              <h3 className="font-bold">{achievement.jobTitle}</h3>
                               <Badge variant="outline" className="mt-1">
                                 {achievement.type}
                               </Badge>
@@ -1281,7 +1281,7 @@ export default function ProfileSetupPage() {
                             <div className="mt-2">
                               <img
                                 src={achievement.image || "/placeholder.svg"}
-                                alt={achievement.title}
+                                alt={achievement.jobTitle}
                                 className="rounded-md max-h-40 object-contain"
                               />
                             </div>
@@ -1300,7 +1300,7 @@ export default function ProfileSetupPage() {
                             <Input
                               id="achievementTitle"
                               name="title"
-                              value={newAchievement.title}
+                              value={newAchievement.jobTitle}
                               onChange={handleAchievementChange}
                               placeholder="e.g. Best Paper Award"
                             />
