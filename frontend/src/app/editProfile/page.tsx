@@ -402,7 +402,7 @@ function EditProfile({
                 <Input
                   id="email"
                   type="email"
-                  value={editedProfile.email || ""}
+                  value={editedProfile?.email || ""}
                   onChange={(e) =>
                     setEditedProfile({
                       ...editedProfile,
@@ -415,7 +415,7 @@ function EditProfile({
               <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
                 <Select
-                  value={editedProfile.role || ""}
+                  value={editedProfile?.role || ""}
                   onValueChange={(value) =>
                     setEditedProfile({
                       ...editedProfile,
@@ -437,7 +437,7 @@ function EditProfile({
                 <Label htmlFor="location">Location</Label>
                 <Input
                   id="location"
-                  value={editedProfile.location || ""}
+                  value={editedProfile?.location || ""}
                   onChange={(e) =>
                     setEditedProfile({
                       ...editedProfile,
@@ -451,7 +451,7 @@ function EditProfile({
                 <Label htmlFor="graduationYear">Graduation Year</Label>
                 <Input
                   id="graduationYear"
-                  value={editedProfile.graduationYear || ""}
+                  value={editedProfile?.graduationYear || ""}
                   onChange={(e) =>
                     setEditedProfile({
                       ...editedProfile,
@@ -461,13 +461,13 @@ function EditProfile({
                 />
               </div>
 
-              {editedProfile.role === "alumni" && (
+              {editedProfile?.role === "alumni" && (
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="jobTitle">Current Job</Label>
                     <Input
                       id="jobTitle"
-                      value={editedProfile.jobTitle || ""}
+                      value={editedProfile?.jobTitle || ""}
                       onChange={(e) =>
                         setEditedProfile({
                           ...editedProfile,
@@ -485,7 +485,7 @@ function EditProfile({
               <Textarea
                 id="bio"
                 rows={4}
-                value={editedProfile.bio || ""}
+                value={editedProfile?.bio || ""}
                 onChange={(e) =>
                   setEditedProfile({
                     ...editedProfile,
@@ -515,7 +515,7 @@ function EditProfile({
             </div>
 
             <div className="flex flex-wrap gap-2 mt-4">
-              {(editedProfile.skills || []).map(
+              {(editedProfile?.skills || []).map(
                 (skill: string, index: number) => (
                   <Badge
                     key={index}
@@ -699,7 +699,7 @@ function EditProfile({
             </Card>
 
             <div className="space-y-4 mt-4">
-              {(editedProfile.experiences || []).map(
+              {(editedProfile?.experiences || []).map(
                 (exp: any, index: number) => (
                   <Card key={index}>
                     <CardHeader className="pb-2">
@@ -881,7 +881,7 @@ function EditProfile({
             </Card>
 
             <div className="space-y-4 mt-4">
-              {(editedProfile.education || []).map(
+              {(editedProfile?.education || []).map(
                 (edu: any, index: number) => (
                   <Card key={index}>
                     <CardHeader className="pb-2">
@@ -1023,7 +1023,7 @@ function EditProfile({
             </Card>
 
             <div className="space-y-4 mt-4">
-              {(editedProfile.achievements || []).map(
+              {(editedProfile?.achievements || []).map(
                 (ach: any, index: number) => (
                   <Card key={index}>
                     <CardHeader className="pb-2">
