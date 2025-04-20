@@ -48,16 +48,15 @@ The Alumni Connect Portal addresses this need by offering a space for alumni and
 
 | Feature | Description | Score |
 |--------|-------------|-------|
-| 🔐 User Authentication | Login/signup with session security and password management | 15 |
-| 📇 Alumni Directory | Searchable list of verified alumni profiles | 15 |
-| 🔍 Search & Filter | Filter alumni by batch, branch, job title, or location | 20 |
-| 👤 Profile Pages | Editable personal and professional profiles for each user | 15 |
-| 📝 Community Feed | Forum for posts, discussions, and networking | 20 |
-| 🏷️ Sorting & Tagging | Sort by graduation year, profession, etc. | 10 |
-| 📱 Mobile Responsive | Optimized for all screen sizes | 5 |
-| 💬 Private Messaging | Secure 1:1 messaging system between users | ✓ |
-| 🏆 Achievement Section | Showcase milestones, recognitions, awards | ✓ |
-| 🔗 LinkedIn Integration | Planned feature for syncing user profiles with LinkedIn | ✓ |
+| 🔐 User Authentication | Login/signup with session security and password management 
+| 📇 Alumni Directory | Searchable list of verified alumni profiles 
+| 🔍 Search & Filter | Filter alumni by batch, branch, job title, or location
+| 👤 Profile Pages | Editable personal and professional profiles for each user
+| 📝 Community Feed | Forum for posts, discussions, and networking 
+| 🏷️ Sorting & Tagging | Sort by graduation year, profession, etc.
+| 📱 Mobile Responsive | Optimized for all screen sizes
+| 💬 Private Messaging | Secure 1:1 messaging system between users 
+| 🏆 Achievement Section | Showcase milestones, recognitions, awards
 
 ---
 
