@@ -39,7 +39,7 @@ app.set("socketio", io);
 
 
 // Middlewares
-app.use(cors());
+// app.use(cors());
 app.use(express.json()); // for parsing application/json
 
 // Routes
