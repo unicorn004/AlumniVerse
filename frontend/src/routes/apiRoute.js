@@ -15,6 +15,8 @@ export const API_ROUTES = {
   UPDATE_USER_PROFILE: (id) => `${API_BASE_URL}/api/users/all`,
   GET_ALL_ACHIEVEMENTS: (id) =>
     `${API_BASE_URL}/api/achievements/allAchievements`,
-  GET_USER_PROFILE: (id) =>
-    `${API_BASE_URL}/api/users/${id}`,
+  GET_USER_PROFILE: (id) => `${API_BASE_URL}/api/users/${id}`,
+  
+  UPDATE_USER_PROFILE_IMAGE_ONLY: (id) =>
+    `${API_BASE_URL}/api/users/upload/profile-image`,
 };
