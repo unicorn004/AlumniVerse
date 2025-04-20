@@ -20,18 +20,39 @@ const { router: chatRoutes, handleSocketConnections } = require("./routes/chat.j
 const app = express();
 
 const server = http.createServer(app);
-// app.use(cors()); <- DELETE THIS LINE
+const allowedOrigins = [
+  "https://alumni-verse-two.vercel.app", // production
+  "http://localhost:3000"               // local dev
+];
 
-// Make sure your Socket.io CORS config is consistent and properly configured
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  credentials: true
+}));
+
 const io = new Server(server, {
   cors: {
-    origin: "*", // or specifically list your client origin
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"]  // Add this line
+    credentials: true
   },
   transports: ['websocket', 'polling']
 });
+
+
 
 // Initialize socket.io
 handleSocketConnections(io);
@@ -39,7 +60,7 @@ app.set("socketio", io);
 
 
 // Middlewares
-app.use(cors());
+// app.use(cors());
 app.use(express.json()); // for parsing application/json
 
 // Routes
