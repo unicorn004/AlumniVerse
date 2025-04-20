@@ -69,14 +69,14 @@ export default function LoginPage() {
         <div className="container flex h-16 items-center px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2 font-bold text-xl">
             <GraduationCap className="h-6 w-6" />
-            <span>Nexus</span>
+            <span>AlumniVerse</span>
           </Link>
         </div>
       </header>
       <main className="flex-1 flex items-center justify-center p-4 md:p-8">
         <Card className="mx-auto max-w-md w-full">
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">Login to Nexus</CardTitle>
+            <CardTitle className="text-2xl font-bold">Login to AlumniVerse</CardTitle>
             <CardDescription>
               Enter your email and password to access your account
             </CardDescription>
@@ -142,7 +142,7 @@ export default function LoginPage() {
       <footer className="border-t py-4">
         <div className="container flex justify-center">
           <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Nexus. All rights reserved.
+            © {new Date().getFullYear()} AlumniVerse. All rights reserved.
           </p>
         </div>
       </footer>

@@ -77,7 +77,7 @@ export default function ChatPage() {
         setUsers(usersRes.data)
         
         // Check if there's a chat recipient from profile page
-        const recipientData = localStorage.getItem("nexus-chat-recipient")
+        const recipientData = localStorage.getItem("AlumniVerse-chat-recipient")
         if (recipientData) {
           const recipient = JSON.parse(recipientData)
           
@@ -123,7 +123,7 @@ export default function ChatPage() {
           }
           
           // Clear the recipient data
-          localStorage.removeItem("nexus-chat-recipient")
+          localStorage.removeItem("AlumniVerse-chat-recipient")
 
           // Hide sidebar on mobile
           if (isMobile) {
@@ -485,7 +485,7 @@ export default function ChatPage() {
                 </Button>
               )}
               <div className="text-center max-w-md">
-                <h2 className="text-2xl font-bold mb-2">Welcome to Nexus Chat</h2>
+                <h2 className="text-2xl font-bold mb-2">Welcome to AlumniVerse Chat</h2>
                 <p className="text-muted-foreground">
                   Select a contact to start messaging or create a new chat with an alumni.
                 </p>

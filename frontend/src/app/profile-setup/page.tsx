@@ -537,7 +537,7 @@ export default function ProfileSetupPage() {
         <div className="container flex h-16 items-center px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2 font-bold text-xl">
             <GraduationCap className="h-6 w-6" />
-            <span>Nexus</span>
+            <span>AlumniVerse</span>
           </Link>
         </div>
       </header>
@@ -1313,7 +1313,7 @@ export default function ProfileSetupPage() {
       <footer className="border-t py-4">
         <div className="container flex justify-center">
           <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Nexus. All rights reserved.
+            © {new Date().getFullYear()} AlumniVerse. All rights reserved.
           </p>
         </div>
       </footer>
