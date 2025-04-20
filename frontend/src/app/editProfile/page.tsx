@@ -167,7 +167,7 @@ function EditProfile({
       const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
       // Basic fields with null/undefined checks
-      formData.append("fullName", editedProfile.fullName || "");
+      formData.append("fullName", editedProfile?.fullName || "");
       formData.append(
         "graduationYear",
         (editedProfile.graduationYear || "").toString()
@@ -387,7 +387,7 @@ function EditProfile({
                 <Label htmlFor="name">Full Name</Label>
                 <Input
                   id="name"
-                  value={editedProfile.fullName || ""}
+                  value={editedProfile?.fullName || ""}
                   onChange={(e) =>
                     setEditedProfile({
                       ...editedProfile,
