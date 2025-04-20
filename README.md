@@ -46,8 +46,8 @@ The Alumni Connect Portal addresses this need by offering a space for alumni and
 
 ## 🚀 Features
 
-| Feature | Description | Score |
-|--------|-------------|-------|
+| Feature | Description |
+|--------|-------------|
 | 🔐 User Authentication | Login/signup with session security and password management 
 | 📇 Alumni Directory | Searchable list of verified alumni profiles 
 | 🔍 Search & Filter | Filter alumni by batch, branch, job title, or location
@@ -150,7 +150,6 @@ Visit [http://localhost:3000](http://localhost:3000) to access the application.
 - 📧 Email notifications for messages & updates
 - 📊 Admin dashboard and analytics
 - 🗓️ Alumni event calendar
-- 🔒 Role-based access (Admin/Student/Alumni)
 
 ---
 
