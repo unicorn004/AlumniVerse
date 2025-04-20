@@ -1,4 +1,5 @@
 export const API_BASE_URL = "https://alumniverse.onrender.com";
+//export const API_BASE_URL = "http://localhost:5000";
 
 export const API_ROUTES = {
   REGISTER: `${API_BASE_URL}/api/auth/register`,
@@ -16,7 +17,7 @@ export const API_ROUTES = {
   GET_ALL_ACHIEVEMENTS: (id) =>
     `${API_BASE_URL}/api/achievements/allAchievements`,
   GET_USER_PROFILE: (id) => `${API_BASE_URL}/api/users/${id}`,
-  
+
   UPDATE_USER_PROFILE_IMAGE_ONLY: (id) =>
     `${API_BASE_URL}/api/users/upload/profile-image`,
 };
