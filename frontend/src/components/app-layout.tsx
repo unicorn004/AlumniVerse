@@ -85,7 +85,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                     <div className="py-4">
                       <Link href="/" className="flex items-center gap-2 font-bold text-xl">
                         <GraduationCap className="h-6 w-6" />
-                        <span>Nexus</span>
+                        <span>AlumniVerse</span>
                       </Link>
                     </div>
                     <nav className="flex-1 space-y-2">
@@ -118,7 +118,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
             )}
             <Link href="/" className="flex items-center gap-2 font-bold text-xl">
               <GraduationCap className="h-6 w-6" />
-              <span>Nexus</span>
+              <span>AlumniVerse</span>
             </Link>
           </div>
 

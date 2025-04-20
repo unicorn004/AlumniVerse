@@ -96,7 +96,7 @@ export default function SignupPage() {
         <div className="container flex h-16 items-center px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2 font-bold text-xl">
             <GraduationCap className="h-6 w-6" />
-            <span>Nexus</span>
+            <span>AlumniVerse</span>
           </Link>
         </div>
       </header>
@@ -104,7 +104,7 @@ export default function SignupPage() {
         <Card className="mx-auto max-w-md w-full">
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-            <CardDescription>Enter your information to create a Nexus account</CardDescription>
+            <CardDescription>Enter your information to create a AlumniVerse account</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -202,7 +202,7 @@ export default function SignupPage() {
       <footer className="border-t py-4">
         <div className="container flex justify-center">
           <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Nexus. All rights reserved.
+            © {new Date().getFullYear()} AlumniVerse. All rights reserved.
           </p>
         </div>
       </footer>

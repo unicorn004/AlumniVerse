@@ -1,6 +1,6 @@
-# 🌐 Nexus - Alumni Connect Portal
+# 🌐 AlumniVerse - Alumni Connect Portal
 
-**Nexus** is a modern, full-stack web application designed to build a strong and lasting network between alumni and students of an institution. Developed for the **WEB DASH 2025 Hackathon**, Nexus empowers alumni to stay connected, share achievements, and actively contribute to the academic community.
+**AlumniVerse** is a modern, full-stack web application designed to build a strong and lasting network between alumni and students of an institution. Developed for the **WEB DASH 2025 Hackathon**, AlumniVerse empowers alumni to stay connected, share achievements, and actively contribute to the academic community.
 
 ---
 
