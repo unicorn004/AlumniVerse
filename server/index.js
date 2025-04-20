@@ -20,21 +20,15 @@ const { router: chatRoutes, handleSocketConnections } = require("./routes/chat.j
 const app = express();
 
 const server = http.createServer(app);
-// CORS setup for Express
-app.use(cors({
-  // origin: process.env.CORS_ALLOWED_ORIGIN,
-  origin:"*",
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true
-}));
+// app.use(cors()); <- DELETE THIS LINE
 
-// Socket.io setup
+// Make sure your Socket.io CORS config is consistent and properly configured
 const io = new Server(server, {
   cors: {
-    // origin: process.env.CORS_ALLOWED_ORIGIN,
-    origin:"*",
+    origin: "*", // or specifically list your client origin
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-    credentials: true
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"]  // Add this line
   },
   transports: ['websocket', 'polling']
 });
