@@ -95,50 +95,130 @@ function EditProfile({
   //   setIsEditDialogOpen(false);
   // };
 
+  // const handleSaveProfile = async (e: React.FormEvent) => {
+  //   try {
+  //     const formData = new FormData();
+  //     const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+  //     // Basic fields
+  //     formData.append("fullName", editedProfile.fullName);
+  //     formData.append("graduationYear", editedProfile.graduationYear.toString());
+  //     formData.append("role", currentUser.role);
+  //     formData.append("branch", editedProfile.branch);
+  //     formData.append("jobTitle", editedProfile.currentJob);
+  //     formData.append("location", editedProfile.location);
+  //     formData.append("bio", editedProfile.bio);
+  //     formData.append("linkedIn", editedProfile.linkedinUrl);
+
+  //     // Files
+  //     if (editedProfile.profileImageFile instanceof File) {
+  //       formData.append("profileImage", editedProfile.profileImageFile);
+  //     } else if (typeof editedProfile.profileImage === "string") {
+  //       console.log("THIS IS UNEXPECTED IMAGE URL ERROR IN PROFILE SETUP");
+  //       formData.append("profileImage", editedProfile.profileImage);
+  //     }
+
+  //     if (editedProfile.resumeFile) {
+  //       formData.append("resume", editedProfile.resumeFile);
+  //     }
+
+  //     // Arrays or nested data: stringify
+  //     formData.append("experiences", JSON.stringify(editedProfile.experiences));
+  //     formData.append("education", JSON.stringify(editedProfile.education));
+  //     formData.append("skills", JSON.stringify(editedProfile.skills));
+
+  //     // 🧠 Handle achievements separately
+  //     const achievementsForUpload = editedProfile.achievements.map((ach) => {
+  //       const { imageFile, ...rest } = ach;
+  //       console.log("ac file = ",imageFile);
+  //       return rest;
+  //     });
+
+  //     formData.append("achievements", JSON.stringify(achievementsForUpload));
+
+  //     // 📦 Manually append imageFiles to 'achievementImages'
+  //     editedProfile.achievements.forEach((ach) => {
+  //       if (ach.imageFile instanceof File) {
+  //         formData.append("achievementImages", ach.imageFile);
+  //       }
+  //     });
+
+  //     console.log("Formdata being sent = ", formData);
+
+  //     // 🚀 Submit form data
+  //     const response = await updateUserProfile(formData);
+
+  //     if (response) {
+  //       console.log("Profile update response:", response);
+  //       localStorage.setItem("user", JSON.stringify(response.data));
+  //       setProfile(response.data);
+  //     }
+
+  //   } catch (err) {
+  //     console.log("Failed to save profile. Please try again. = ", err);
+  //   } finally {
+  //     setIsEditDialogOpen(false);
+  //   }
+  // };
   const handleSaveProfile = async (e: React.FormEvent) => {
     try {
       const formData = new FormData();
       const currentUser = JSON.parse(localStorage.getItem("user") || "{}");
 
-      // Basic fields
-      formData.append("fullName", editedProfile.fullName);
-      formData.append("graduationYear", editedProfile.graduationYear.toString());
-      formData.append("role", currentUser.role);
-      formData.append("branch", editedProfile.branch);
-      formData.append("jobTitle", editedProfile.currentJob);
-      formData.append("location", editedProfile.location);
-      formData.append("bio", editedProfile.bio);
-      formData.append("linkedIn", editedProfile.linkedinUrl);
+      // Basic fields with null/undefined checks
+      formData.append("fullName", editedProfile.fullName || "");
+      formData.append(
+        "graduationYear",
+        (editedProfile.graduationYear || "").toString()
+      );
+      formData.append("role", currentUser.role || "");
+      formData.append("branch", editedProfile.branch || "");
+      formData.append("jobTitle", editedProfile.currentJob || "");
+      formData.append("location", editedProfile.location || "");
+      formData.append("bio", editedProfile.bio || "");
+      formData.append("linkedIn", editedProfile.linkedinUrl || "");
 
-      // Files
-      if (editedProfile.profileImageFile instanceof File) {
+      // Files with existence checks
+      if (editedProfile?.profileImageFile instanceof File) {
         formData.append("profileImage", editedProfile.profileImageFile);
-      } else if (typeof editedProfile.profileImage === "string") {
+      } else if (
+        typeof editedProfile?.profileImage === "string" &&
+        editedProfile.profileImage
+      ) {
         console.log("THIS IS UNEXPECTED IMAGE URL ERROR IN PROFILE SETUP");
         formData.append("profileImage", editedProfile.profileImage);
       }
 
-      if (editedProfile.resumeFile) {
+      if (editedProfile?.resumeFile) {
         formData.append("resume", editedProfile.resumeFile);
       }
 
-      // Arrays or nested data: stringify
-      formData.append("experiences", JSON.stringify(editedProfile.experiences));
-      formData.append("education", JSON.stringify(editedProfile.education));
-      formData.append("skills", JSON.stringify(editedProfile.skills));
+      // Arrays or nested data: stringify with default empty arrays
+      formData.append(
+        "experiences",
+        JSON.stringify(editedProfile.experiences || [])
+      );
+      formData.append(
+        "education",
+        JSON.stringify(editedProfile.education || [])
+      );
+      formData.append("skills", JSON.stringify(editedProfile.skills || []));
 
-      // 🧠 Handle achievements separately
-      const achievementsForUpload = editedProfile.achievements.map((ach) => {
-        const { imageFile, ...rest } = ach;
-        console.log("ac file = ",imageFile);
-        return rest;
-      });
+      // 🧠 Handle achievements separately with null check
+      const achievementsForUpload = (editedProfile.achievements || []).map(
+        (ach) => {
+          if (!ach) return {}; // Handle null/undefined achievement
+          const { imageFile, ...rest } = ach;
+          console.log("ac file = ", imageFile);
+          return rest;
+        }
+      );
 
       formData.append("achievements", JSON.stringify(achievementsForUpload));
 
-      // 📦 Manually append imageFiles to 'achievementImages'
-      editedProfile.achievements.forEach((ach) => {
-        if (ach.imageFile instanceof File) {
+      // 📦 Manually append imageFiles to 'achievementImages' with null checks
+      (editedProfile.achievements || []).forEach((ach) => {
+        if (ach && ach.imageFile instanceof File) {
           formData.append("achievementImages", ach.imageFile);
         }
       });
@@ -150,10 +230,9 @@ function EditProfile({
 
       if (response) {
         console.log("Profile update response:", response);
-        localStorage.setItem("user", JSON.stringify(response.data));
+        localStorage.setItem("user", JSON.stringify(response.data || {}));
         setProfile(response.data);
       }
-
     } catch (err) {
       console.log("Failed to save profile. Please try again. = ", err);
     } finally {
