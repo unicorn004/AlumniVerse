@@ -184,7 +184,7 @@ export default function ChatPage() {
       if (msg.sender?._id !== currentUserId) {
         const otherUser = selectedRoom.user1._id === currentUserId ? selectedRoom.user2 : selectedRoom.user1
         toast({
-          title: `New message from ${otherUser.fullName}`,
+          title: `New message from ${otherUser?.fullName}`,
           description: msg.content.substring(0, 60) + (msg.content.length > 60 ? "..." : ""),
         })
       }
@@ -323,7 +323,7 @@ export default function ChatPage() {
                           className="p-3 hover:bg-muted cursor-pointer flex items-center"
                         >
                           <Avatar className="h-8 w-8 mr-3">
-                            <AvatarImage src={user.profileImage} alt={user.fullName} />
+                            <AvatarImage src={user?.profileImage || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"} alt={user.fullName} />
                             <AvatarFallback>{user.fullName?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="font-medium">{user.fullName}</div>
@@ -362,12 +362,12 @@ export default function ChatPage() {
                       >
                         <div className="flex gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={otherUser.profileImage} alt={otherUser.fullName} />
-                            <AvatarFallback>{otherUser.fullName?.charAt(0)}</AvatarFallback>
+                            <AvatarImage src={otherUser?.profileImage || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"} alt={otherUser?.fullName} />
+                            <AvatarFallback>{otherUser?.fullName?.charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start">
-                              <h3 className="font-medium truncate">{otherUser.fullName}</h3>
+                              <h3 className="font-medium truncate">{otherUser?.fullName}</h3>
                               <span className="text-xs text-muted-foreground">{timestamp}</span>
                             </div>
                             <p className="text-sm text-muted-foreground truncate">{lastMessage}</p>
@@ -403,7 +403,7 @@ export default function ChatPage() {
                       {selectedRoom.user1 && selectedRoom.user2 && (
                         <>
                           <AvatarImage 
-                            src={selectedRoom.user1._id === currentUserId ? selectedRoom.user2.profileImage : selectedRoom.user1.profileImage} 
+                            src={selectedRoom.user1._id === currentUserId ? selectedRoom.user2?.profileImage : selectedRoom.user1?.profileImage} 
                             alt={selectedRoom.user1._id === currentUserId ? selectedRoom.user2.fullName : selectedRoom.user1.fullName} 
                           />
                           <AvatarFallback>
