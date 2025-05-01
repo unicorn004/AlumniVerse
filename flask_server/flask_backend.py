@@ -159,9 +159,9 @@ def handle_chatbot_request():
         # Format conversation context from messages
         formatted_context = format_conversation_context(messages)
         
-        print("prompt = ", prompt)
-        print("user_profile = ", user_profile)
-        print("messages = ", messages)
+        #print("prompt = ", prompt)
+        #print("user_profile = ", user_profile)
+        #print("messages = ", messages)
         
         # Invoke the chatbot chain
         response = chatbot_chain.invoke({
