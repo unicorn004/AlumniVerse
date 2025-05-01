@@ -1,6 +1,7 @@
 export const API_BASE_URL = "https://alumniverse.onrender.com";
+export const API_FLASK_URL = "https://alumniverse-flaskbackend.onrender.com";
 //export const API_BASE_URL = "http://localhost:5000";
-export const API_FLASK_URL = "http://localhost:4000";
+//export const API_FLASK_URL = "http://localhost:4000";
 
 export const API_ROUTES = {
   REGISTER: `${API_BASE_URL}/api/auth/register`,
