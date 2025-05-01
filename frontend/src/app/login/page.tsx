@@ -39,6 +39,7 @@ export default function LoginPage() {
       // Save the token and user data to localStorage
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.user));
+      
 
       // // Retrieve the token
       // const token = localStorage.getItem("token");
@@ -47,7 +48,8 @@ export default function LoginPage() {
       // const user = JSON.parse(localStorage.getItem("user") || "{}");
 
       // console.log("Token:", token);
-      // console.log("User:", user);
+      console.log("User:", response.user);
+
       if(response.user.isProfileComplete===true){
         router.push("/home");
       }

@@ -1,5 +1,6 @@
 export const API_BASE_URL = "https://alumniverse.onrender.com";
 //export const API_BASE_URL = "http://localhost:5000";
+export const API_FLASK_URL = "http://localhost:4000";
 
 export const API_ROUTES = {
   REGISTER: `${API_BASE_URL}/api/auth/register`,
@@ -9,6 +10,7 @@ export const API_ROUTES = {
   GET_CURRENT_USER: (id) => `${API_BASE_URL}/api/users/me`,
 
   MAKE_COMMUNITY_POST: (id) => `${API_BASE_URL}/api/posts/`,
+  MODERATE_POST: (id) => `${API_FLASK_URL}/moderate`, // flask api
   GET_ALL_POSTS: (id) => `${API_BASE_URL}/api/posts/`,
   LIKE_POST: (post_id) => `${API_BASE_URL}/api/posts/like/${post_id}`,
   COMMENT_ON_POST: (post_id) => `${API_BASE_URL}/api/posts/comment/${post_id}`,
@@ -20,4 +22,6 @@ export const API_ROUTES = {
 
   UPDATE_USER_PROFILE_IMAGE_ONLY: (id) =>
     `${API_BASE_URL}/api/users/upload/profile-image`,
+
+  CALL_CHATBOT: (id) => `${API_FLASK_URL}/chatbot`,
 };

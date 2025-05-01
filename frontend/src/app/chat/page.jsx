@@ -1,95 +1,114 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Loader2, Send, Search, ArrowLeft, MessageSquare, PlusCircle } from "lucide-react"
-import { Button } from "@/src/components/ui/button"
-import { Input } from "@/src/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/src/components/ui/avatar"
-import { useToast } from "@/src/hooks/use-toast"
-import { useMobile } from "@/src/hooks/use-mobile"
-import AppLayout from "@/src/components/app-layout"
-import axios from "axios"
-import { io } from "socket.io-client"
-import { jwtDecode } from "jwt-decode"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Loader2,
+  Send,
+  Search,
+  ArrowLeft,
+  MessageSquare,
+  PlusCircle,
+} from "lucide-react";
+import { Button } from "@/src/components/ui/button";
+import { Input } from "@/src/components/ui/input";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/src/components/ui/avatar";
+import { useToast } from "@/src/hooks/use-toast";
+import { useMobile } from "@/src/hooks/use-mobile";
+import AppLayout from "@/src/components/app-layout";
+import axios from "axios";
+import { io } from "socket.io-client";
+import { jwtDecode } from "jwt-decode";
 
-import {API_BASE_URL} from "../../routes/apiRoute"
+import { API_BASE_URL } from "../../routes/apiRoute";
+import { callChatbot } from "../../api/home";
 
 export default function ChatPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const isMobile = useMobile()
+  const router = useRouter();
+  const { toast } = useToast();
+  const isMobile = useMobile();
 
-  const [user, setUser] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [newMessage, setNewMessage] = useState("")
-  const [showSidebar, setShowSidebar] = useState(!isMobile)
-  
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [newMessage, setNewMessage] = useState("");
+  const [showSidebar, setShowSidebar] = useState(!isMobile);
+
   // Socket.io state
-  const [socket, setSocket] = useState(null)
-  const [isConnected, setIsConnected] = useState(true)
-  const [rooms, setRooms] = useState([])
-  const [users, setUsers] = useState([])
-  const [messages, setMessages] = useState([])
-  const [selectedRoom, setSelectedRoom] = useState(null)
-  const [showUsersDropdown, setShowUsersDropdown] = useState(false)
-  
+  const [socket, setSocket] = useState(null);
+  const [isConnected, setIsConnected] = useState(true);
+  const [rooms, setRooms] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [showUsersDropdown, setShowUsersDropdown] = useState(false);
+
   // Get token and user ID
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null
-  const decoded = token ? jwtDecode(token) : null
-  const currentUserId = decoded?.id
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const decoded = token ? jwtDecode(token) : null;
+  const currentUserId = decoded?.id;
 
   // Filter contacts based on search query
-  const filteredRooms = searchQuery 
-    ? rooms.filter(room => {
-        const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
-        return otherUser.fullName.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredRooms = searchQuery
+    ? rooms.filter((room) => {
+        const otherUser =
+          room.user1._id === currentUserId ? room.user2 : room.user1;
+        return otherUser.fullName
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
       })
-    : rooms
+    : rooms;
 
   useEffect(() => {
     // Check if user is logged in
     if (!token) {
-      console.warn("No token found. Redirecting to login...")
-      router.push("/login")
-      return
+      console.warn("No token found. Redirecting to login...");
+      router.push("/login");
+      return;
     }
 
     // Fetch user data, rooms and users
     const fetchData = async () => {
-      setIsLoading(true)
+      setIsLoading(true);
       try {
-        console.log("Fetching user rooms and users...")
+        console.log("Fetching user rooms and users...");
         const [roomsRes, usersRes] = await Promise.all([
           axios.get(`${API_BASE_URL}/api/chat/getUserRooms`, {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get(`${API_BASE_URL}/api/users/`, {
-            headers: { Authorization: `Bearer ${token}` }
-          })
-        ])
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-        console.log("Fetched rooms:", roomsRes.data.rooms)
-        console.log("Fetched users:", usersRes.data)
+        console.log("Fetched rooms:", roomsRes.data.rooms);
+        console.log("Fetched users:", usersRes.data);
 
-        setRooms(roomsRes.data.rooms)
-        setUsers(usersRes.data)
-        
+        setRooms(roomsRes.data.rooms);
+        setUsers(usersRes.data);
+
         // Check if there's a chat recipient from profile page
-        const recipientData = localStorage.getItem("AlumniVerse-chat-recipient")
+        const recipientData = localStorage.getItem(
+          "AlumniVerse-chat-recipient"
+        );
         if (recipientData) {
-          const recipient = JSON.parse(recipientData)
-          
+          const recipient = JSON.parse(recipientData);
+
           // Find if room already exists with this user
-          const existingRoom = roomsRes.data.rooms.find(room => {
-            const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
-            return otherUser._id === recipient.id
-          })
-          
+          const existingRoom = roomsRes.data.rooms.find((room) => {
+            const otherUser =
+              room.user1._id === currentUserId ? room.user2 : room.user1;
+            return otherUser._id === recipient.id;
+          });
+
           if (existingRoom) {
             // Select existing room
-            setSelectedRoom(existingRoom)
+            setSelectedRoom(existingRoom);
           } else {
             // Create new room with this user
             try {
@@ -97,187 +116,236 @@ export default function ChatPage() {
                 `${API_BASE_URL}/api/chat/createRoom`,
                 { friend_id: recipient.id },
                 { headers: { Authorization: `Bearer ${token}` } }
-              )
-              console.log("Room created:", response.data)
+              );
+              console.log("Room created:", response.data);
               // Refresh rooms after creating new one
-              const updatedRoomsRes = await axios.get(`${API_BASE_URL}/api/chat/getUserRooms`, {
-                headers: { Authorization: `Bearer ${token}` }
-              })
-              setRooms(updatedRoomsRes.data.rooms)
-              
+              const updatedRoomsRes = await axios.get(
+                `${API_BASE_URL}/api/chat/getUserRooms`,
+                {
+                  headers: { Authorization: `Bearer ${token}` },
+                }
+              );
+              setRooms(updatedRoomsRes.data.rooms);
+
               // Find and select the newly created room
-              const newRoom = updatedRoomsRes.data.rooms.find(room => {
-                const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
-                return otherUser._id === recipient.id
-              })
-              
-              if (newRoom) setSelectedRoom(newRoom)
+              const newRoom = updatedRoomsRes.data.rooms.find((room) => {
+                const otherUser =
+                  room.user1._id === currentUserId ? room.user2 : room.user1;
+                return otherUser._id === recipient.id;
+              });
+
+              if (newRoom) setSelectedRoom(newRoom);
             } catch (err) {
-              console.error("Error creating room:", err)
+              console.error("Error creating room:", err);
               toast({
                 title: "Error",
                 description: "Failed to create chat room",
-                variant: "destructive"
-              })
+                variant: "destructive",
+              });
             }
           }
-          
+
           // Clear the recipient data
-          localStorage.removeItem("AlumniVerse-chat-recipient")
+          localStorage.removeItem("AlumniVerse-chat-recipient");
 
           // Hide sidebar on mobile
           if (isMobile) {
-            setShowSidebar(false)
+            setShowSidebar(false);
           }
         }
       } catch (err) {
-        console.error("Error fetching data:", err)
+        console.error("Error fetching data:", err);
         toast({
           title: "Error",
           description: "Failed to load chat data",
-          variant: "destructive"
-        })
+          variant: "destructive",
+        });
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
-    fetchData()
-    
+    fetchData();
+
     // Get user data
-    const userData = localStorage.getItem("user")
+    const userData = localStorage.getItem("user");
     if (userData) {
-      setUser(JSON.parse(userData))
+      setUser(JSON.parse(userData));
     }
-  }, [router, token, currentUserId, toast, isMobile])
-  
+  }, [router, token, currentUserId, toast, isMobile]);
+
   // Set up socket connection when selected room changes
   useEffect(() => {
     if (!selectedRoom || !token) {
-      console.log("Room or token missing, skipping socket setup.")
-      return
+      console.log("Room or token missing, skipping socket setup.");
+      return;
     }
 
-    console.log("Connecting socket...")
+    console.log("Connecting socket...");
     const newSocket = io(`${API_BASE_URL}`, {
       auth: { token: `Bearer ${token}` },
       withCredentials: true,
-      transports: ["polling", "websocket"]
-    })
+      transports: ["polling", "websocket"],
+    });
 
     newSocket.on("connect", () => {
-      console.log("Socket connected:", newSocket.id)
+      console.log("Socket connected:", newSocket.id);
       // setIsConnected(true)
-      newSocket.emit("joinRoom", selectedRoom._id)
-    })
+      newSocket.emit("joinRoom", selectedRoom._id);
+    });
 
     newSocket.on("previousMessages", (msgs) => {
-      console.log("Previous messages:", msgs)
-      setMessages(msgs)
-    })
+      console.log("Previous messages:", msgs);
+      setMessages(msgs);
+    });
 
     newSocket.on("serverSendsMsg", (msg) => {
-      console.log("New message from server:", msg)
-      setMessages((prev) => [...prev, msg])
-      
+      console.log("New message from server:", msg);
+      setMessages((prev) => [...prev, msg]);
+
       // Show toast notification for new messages
       if (msg.sender?._id !== currentUserId) {
-        const otherUser = selectedRoom.user1._id === currentUserId ? selectedRoom.user2 : selectedRoom.user1
+        const otherUser =
+          selectedRoom.user1._id === currentUserId
+            ? selectedRoom.user2
+            : selectedRoom.user1;
         toast({
           title: `New message from ${otherUser?.fullName}`,
-          description: msg.content.substring(0, 60) + (msg.content.length > 60 ? "..." : ""),
-        })
+          description:
+            msg.content.substring(0, 60) +
+            (msg.content.length > 60 ? "..." : ""),
+        });
       }
-    })
+    });
 
     newSocket.on("disconnect", () => {
-      console.log("Socket disconnected.")
+      console.log("Socket disconnected.");
       // setIsConnected(false)
-    })
+    });
 
-    setSocket(newSocket)
+    setSocket(newSocket);
 
     return () => {
-      console.log("Disconnecting socket...")
-      newSocket.disconnect()
-    }
-  }, [selectedRoom, token, toast, currentUserId])
-  
+      console.log("Disconnecting socket...");
+      newSocket.disconnect();
+    };
+  }, [selectedRoom, token, toast, currentUserId]);
+
   // Handle creating a new chat room with a user
   const handleCreateRoom = async (friendId) => {
-    console.log("Creating room with user:", friendId)
+    console.log("Creating room with user:", friendId);
     try {
       const response = await axios.post(
         `${API_BASE_URL}/api/chat/createRoom`,
         { friend_id: friendId },
         { headers: { Authorization: `Bearer ${token}` } }
-      )
-      console.log("Room created:", response.data)
-      
+      );
+      console.log("Room created:", response.data);
+
       // Refresh rooms after creating new one
-      const updatedRoomsRes = await axios.get(`${API_BASE_URL}/api/chat/getUserRooms`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      setRooms(updatedRoomsRes.data.rooms)
-      
+      const updatedRoomsRes = await axios.get(
+        `${API_BASE_URL}/api/chat/getUserRooms`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      setRooms(updatedRoomsRes.data.rooms);
+
       // Find and select the newly created room
-      const newRoom = updatedRoomsRes.data.rooms.find(room => {
-        const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
-        return otherUser._id === friendId
-      })
-      
-      if (newRoom) setSelectedRoom(newRoom)
-      
+      const newRoom = updatedRoomsRes.data.rooms.find((room) => {
+        const otherUser =
+          room.user1._id === currentUserId ? room.user2 : room.user1;
+        return otherUser._id === friendId;
+      });
+
+      if (newRoom) setSelectedRoom(newRoom);
+
       // Hide dropdown
-      setShowUsersDropdown(false)
-      
+      setShowUsersDropdown(false);
+
       toast({
         title: "Success",
         description: "Chat room created successfully",
-      })
+      });
     } catch (err) {
-      console.error("Error creating room:", err)
+      console.error("Error creating room:", err);
       toast({
         title: "Error",
         description: "Failed to create chat room",
-        variant: "destructive"
-      })
+        variant: "destructive",
+      });
     }
-  }
-  
+  };
+
   // Handle sending a message
   const sendMessage = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!newMessage.trim() || !selectedRoom || !isConnected) return
+    if (!newMessage.trim() || !selectedRoom || !isConnected) return;
 
-    console.log(`Sending: "${newMessage}" to ${selectedRoom._id}`)
+    console.log(`Sending: "${newMessage}" to ${selectedRoom._id}`);
     socket.emit("serverRcvsMsg", {
       text: newMessage,
       roomId: selectedRoom._id,
       userId: currentUserId,
-    })
+    });
 
-    setNewMessage("")
-  }
+    setNewMessage("");
+  };
 
   // Format timestamp
   const formatMessageTime = (timestamp) => {
-    const date = new Date(timestamp)
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-  }
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  };
 
   // Toggle sidebar on mobile
   const toggleSidebar = () => {
-    setShowSidebar((prev) => !prev)
-  }
+    setShowSidebar((prev) => !prev);
+  };
+
+  const handleInputChange = async (e) => {
+    const inputText = e.target.value;
+    setNewMessage(inputText); // Update the message state
+  
+    // Regular expression to detect @chatbot "any prompt"
+    const chatbotRegex = /^@chatbot\s+"([^"]+)"/;
+  
+    // Check if the input matches the @chatbot format
+    const match = inputText.match(chatbotRegex);
+    //console.log('selectedRoom = ',selectedRoom)
+
+    if (match) {
+      const prompt = match[1]; // Extract the prompt inside the quotes
+      //console.log("Detected @chatbot command with prompt:", prompt);
+      try{  
+        const messagesWithNames = messages.map(msg => ({
+          senderName: msg.sender._id === selectedRoom.user1._id ? selectedRoom.user1.fullName : selectedRoom.user2.fullName,
+          content: msg.content
+        }))
+        console.log("messagesWithNames = ",messagesWithNames)
+
+        const body = {
+          "prompt" : prompt,
+          "user_profile" : user,
+          "messages" : messagesWithNames
+        }
+        const response = await callChatbot(body);
+        //console.log("LLM response = ", response);
+        setNewMessage(response.response);
+      }
+      catch(err){
+        console.log(err);
+      }
+    }
+  };
 
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
-    )
+    );
   }
 
   return (
@@ -297,7 +365,7 @@ export default function ChatPage() {
                 />
               </div>
             </div>
-            
+
             {/* New Chat Button */}
             <div className="p-4 border-b  h-15">
               <Button
@@ -307,24 +375,38 @@ export default function ChatPage() {
                 <PlusCircle className="h-4 w-4 mr-2" />
                 New Chat
               </Button>
-              
+
               {/* User List Dropdown */}
               {showUsersDropdown && (
-                <div className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg " style={{ maxHeight: '30vh', overflowY: 'auto' }}>
-                  {users.filter(user => user._id !== currentUserId).length === 0 ? (
-                    <div className="p-4 text-center text-muted-foreground">No users available</div>
+                <div
+                  className="mt-2 bg-white border border-gray-200 rounded-lg shadow-lg "
+                  style={{ maxHeight: "30vh", overflowY: "auto" }}
+                >
+                  {users.filter((user) => user._id !== currentUserId).length ===
+                  0 ? (
+                    <div className="p-4 text-center text-muted-foreground">
+                      No users available
+                    </div>
                   ) : (
                     users
-                      .filter(user => user._id !== currentUserId)
-                      .map(user => (
+                      .filter((user) => user._id !== currentUserId)
+                      .map((user) => (
                         <div
                           key={user._id}
                           onClick={() => handleCreateRoom(user._id)}
                           className="p-3 hover:bg-muted cursor-pointer flex items-center"
                         >
                           <Avatar className="h-8 w-8 mr-3">
-                            <AvatarImage src={user?.profileImage || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"} alt={user.fullName} />
-                            <AvatarFallback>{user.fullName?.charAt(0)}</AvatarFallback>
+                            <AvatarImage
+                              src={
+                                user?.profileImage ||
+                                "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+                              }
+                              alt={user.fullName}
+                            />
+                            <AvatarFallback>
+                              {user.fullName?.charAt(0)}
+                            </AvatarFallback>
                           </Avatar>
                           <div className="font-medium">{user.fullName}</div>
                         </div>
@@ -335,17 +417,26 @@ export default function ChatPage() {
             </div>
 
             {/* Contacts List - Replaced ScrollArea with scrollable div */}
-            <div className="flex-1"  style={{ maxHeight: '70vh', overflowY: 'auto' }}>
+            <div
+              className="flex-1"
+              style={{ maxHeight: "70vh", overflowY: "auto" }}
+            >
               <div className="divide-y">
                 {filteredRooms.length > 0 ? (
                   filteredRooms.map((room) => {
-                    const otherUser = room.user1._id === currentUserId ? room.user2 : room.user1
-                    const isActive = selectedRoom?._id === room._id
-                    
+                    const otherUser =
+                      room.user1._id === currentUserId
+                        ? room.user2
+                        : room.user1;
+                    const isActive = selectedRoom?._id === room._id;
+
                     // Get the last message for this room
-                    const lastMessage = room.lastMessage || "Start a conversation"
-                    const timestamp = room.lastMessageTime ? new Date(room.lastMessageTime).toLocaleDateString() : "No messages"
-                    
+                    const lastMessage =
+                      room.lastMessage || "Start a conversation";
+                    const timestamp = room.lastMessageTime
+                      ? new Date(room.lastMessageTime).toLocaleDateString()
+                      : "No messages";
+
                     return (
                       <div
                         key={room._id}
@@ -353,32 +444,49 @@ export default function ChatPage() {
                           isActive ? "bg-muted" : ""
                         }`}
                         onClick={() => {
-                          setSelectedRoom(room)
+                          setSelectedRoom(room);
+                          console.log('selected room = ',room)
                           // Hide sidebar on mobile
                           if (isMobile) {
-                            setShowSidebar(false)
+                            setShowSidebar(false);
                           }
                         }}
                       >
                         <div className="flex gap-3">
                           <Avatar className="h-10 w-10">
-                            <AvatarImage src={otherUser?.profileImage || "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"} alt={otherUser?.fullName} />
-                            <AvatarFallback>{otherUser?.fullName?.charAt(0)}</AvatarFallback>
+                            <AvatarImage
+                              src={
+                                otherUser?.profileImage ||
+                                "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png"
+                              }
+                              alt={otherUser?.fullName}
+                            />
+                            <AvatarFallback>
+                              {otherUser?.fullName?.charAt(0)}
+                            </AvatarFallback>
                           </Avatar>
                           <div className="flex-1 min-w-0">
                             <div className="flex justify-between items-start">
-                              <h3 className="font-medium truncate">{otherUser?.fullName}</h3>
-                              <span className="text-xs text-muted-foreground">{timestamp}</span>
+                              <h3 className="font-medium truncate">
+                                {otherUser?.fullName}
+                              </h3>
+                              <span className="text-xs text-muted-foreground">
+                                {timestamp}
+                              </span>
                             </div>
-                            <p className="text-sm text-muted-foreground truncate">{lastMessage}</p>
+                            <p className="text-sm text-muted-foreground truncate">
+                              {lastMessage}
+                            </p>
                           </div>
                         </div>
                       </div>
-                    )
+                    );
                   })
                 ) : (
                   <div className="p-8 text-center">
-                    <p className="text-muted-foreground">No conversations found</p>
+                    <p className="text-muted-foreground">
+                      No conversations found
+                    </p>
                   </div>
                 )}
               </div>
@@ -396,26 +504,40 @@ export default function ChatPage() {
                     <ArrowLeft className="h-5 w-5" />
                   </Button>
                 )}
-                
+
                 {selectedRoom && (
                   <>
                     <Avatar className="h-10 w-10">
                       {selectedRoom.user1 && selectedRoom.user2 && (
                         <>
-                          <AvatarImage 
-                            src={selectedRoom.user1._id === currentUserId ? selectedRoom.user2?.profileImage : selectedRoom.user1?.profileImage} 
-                            alt={selectedRoom.user1._id === currentUserId ? selectedRoom.user2.fullName : selectedRoom.user1.fullName} 
+                          <AvatarImage
+                            src={
+                              selectedRoom.user1._id === currentUserId
+                                ? selectedRoom.user2?.profileImage
+                                : selectedRoom.user1?.profileImage
+                            }
+                            alt={
+                              selectedRoom.user1._id === currentUserId
+                                ? selectedRoom.user2.fullName
+                                : selectedRoom.user1.fullName
+                            }
                           />
                           <AvatarFallback>
-                            {(selectedRoom.user1._id === currentUserId ? selectedRoom.user2.fullName : selectedRoom.user1.fullName)?.charAt(0)}
+                            {(selectedRoom.user1._id === currentUserId
+                              ? selectedRoom.user2.fullName
+                              : selectedRoom.user1.fullName
+                            )?.charAt(0)}
                           </AvatarFallback>
                         </>
                       )}
                     </Avatar>
                     <div>
                       <h3 className="font-medium">
-                        {selectedRoom.user1 && selectedRoom.user2 && 
-                          (selectedRoom.user1._id === currentUserId ? selectedRoom.user2.fullName : selectedRoom.user1.fullName)}
+                        {selectedRoom.user1 &&
+                          selectedRoom.user2 &&
+                          (selectedRoom.user1._id === currentUserId
+                            ? selectedRoom.user2.fullName
+                            : selectedRoom.user1.fullName)}
                       </h3>
                       {/* <div className="text-sm text-muted-foreground">
                         {isConnected ? "Online" : "Offline"}
@@ -427,9 +549,9 @@ export default function ChatPage() {
 
               {/* Messages Area - Replaced ScrollArea with scrollable div */}
               <div
-  className="flex-1 p-4"
-  style={{ maxHeight: '68vh', overflowY: 'auto' }}
->
+                className="flex-1 p-4"
+                style={{ maxHeight: "68vh", overflowY: "auto" }}
+              >
                 <div className="space-y-4">
                   {messages.length === 0 ? (
                     <div className="text-center text-muted-foreground mt-10">
@@ -440,17 +562,25 @@ export default function ChatPage() {
                     messages.map((message, idx) => (
                       <div
                         key={idx}
-                        className={`flex ${message.sender?._id === currentUserId ? "justify-end" : "justify-start"}`}
+                        className={`flex ${
+                          message.sender?._id === currentUserId
+                            ? "justify-end"
+                            : "justify-start"
+                        }`}
                       >
                         <div
                           className={`max-w-[80%] rounded-lg p-3 ${
-                            message.sender?._id === currentUserId ? "bg-primary text-primary-foreground" : "bg-muted"
+                            message.sender?._id === currentUserId
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-muted"
                           }`}
                         >
                           <p className="text-sm">{message.content}</p>
                           <p
                             className={`text-xs mt-1 ${
-                              message.sender?._id === currentUserId ? "text-primary-foreground/70" : "text-muted-foreground"
+                              message.sender?._id === currentUserId
+                                ? "text-primary-foreground/70"
+                                : "text-muted-foreground"
                             }`}
                           >
                             {formatMessageTime(message.timestamp)}
@@ -467,11 +597,16 @@ export default function ChatPage() {
                   <Input
                     placeholder="Type a message..."
                     value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
+                    //onChange={(e) => setNewMessage(e.target.value)}
+                    onChange={handleInputChange}
                     className="flex-1"
                     // disabled={!isConnected}
                   />
-                  <Button type="submit" size="icon" disabled={!newMessage.trim()}>
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={!newMessage.trim()}
+                  >
                     <Send className="h-4 w-4" />
                   </Button>
                 </form>
@@ -480,14 +615,21 @@ export default function ChatPage() {
           ) : (
             <div className="flex-1 flex flex-col items-center justify-center p-4">
               {isMobile && (
-                <Button variant="outline" className="mb-4" onClick={toggleSidebar}>
+                <Button
+                  variant="outline"
+                  className="mb-4"
+                  onClick={toggleSidebar}
+                >
                   Show Contacts
                 </Button>
               )}
               <div className="text-center max-w-md">
-                <h2 className="text-2xl font-bold mb-2">Welcome to AlumniVerse Chat</h2>
+                <h2 className="text-2xl font-bold mb-2">
+                  Welcome to AlumniVerse Chat
+                </h2>
                 <p className="text-muted-foreground">
-                  Select a contact to start messaging or create a new chat with an alumni.
+                  Select a contact to start messaging or create a new chat with
+                  an alumni.
                 </p>
               </div>
             </div>
@@ -495,5 +637,5 @@ export default function ChatPage() {
         </div>
       </div>
     </AppLayout>
-  )
+  );
 }

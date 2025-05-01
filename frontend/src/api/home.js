@@ -64,6 +64,10 @@ export const makeCommunityPost = async (body) => {
   return await apiCall(API_ROUTES.MAKE_COMMUNITY_POST(), "POST", body);
 };
 
+export const moderateCommunityPost = async (body) => {
+  return await apiCall(API_ROUTES.MODERATE_POST(), "POST", body);
+};
+
 export const getAllPosts = async (body) => {
   return await apiCall(API_ROUTES.GET_ALL_POSTS());  // GET REQUEST
 };
@@ -74,4 +78,8 @@ export const likePost = async (post_id) => {
 
 export const commentOnPost = async (post_id, body) => {
   return await apiCall(API_ROUTES.COMMENT_ON_POST(post_id), "POST", body);
+};
+
+export const callChatbot = async (body) => {
+  return await apiCall(API_ROUTES.CALL_CHATBOT(), "POST", body);
 };
