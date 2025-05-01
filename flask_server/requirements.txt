@@ -43,8 +43,8 @@ matplotlib-inline==0.1.7
 mpmath==1.3.0
 nest-asyncio==1.6.0
 networkx==3.4.2
-numpy==2.2.5 version issue
-#numpy>=1.24 # using for build
+#numpy==2.2.5 version issue
+numpy>=1.24 # using for build
 orjson==3.10.18
 packaging==24.2
 parso==0.8.4
