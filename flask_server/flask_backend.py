@@ -262,4 +262,4 @@ def format_user_profile(profile: Dict[str, Any]) -> str:
     return "\n".join(formatted)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=4000)  # Running on port 4000
+    app.run(debug=True, port=4000)  # Running on port 4000 for local, render doesn't hit here it simply does "gunicorn flask_backend:app"
