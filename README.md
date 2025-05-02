@@ -8,8 +8,8 @@ The **Alumni Connect Portal** is a full-stack web application designed to bridge
 ## 🌐 Live Demo
 
 - **Frontend**: [Hosted on Vercel](https://alumni-verse-two.vercel.app/)
-- **Backend (Node.js)**: [Hosted on Render (API-based access)](https://alumniverse.onrender.com)
-- **Backend (Flask)**: [Hosted on Render (API-based access)](https://alumniverse-flaskbackend.onrender.com)
+- **Backend (Node.js/Express)**: [Hosted on Render (API-based access)](https://alumniverse.onrender.com)
+- **Flask Server**: [Hosted on Render (API-based access)](https://alumniverse-flaskbackend.onrender.com)
 
 ---
 
@@ -38,9 +38,9 @@ The Alumni Connect Portal addresses this need by offering a space for alumni and
 - MongoDB (via Mongoose)
 - Socket.IO (for real-time messaging)
 - Cloudinary (for file and image uploads)
-- Flask
-- LangChain
-- Groq
+- Flask (for chatbot functionality)
+- LangChain (for chatbot logic)
+- Groq (for chatbot input processing)
 
 ### ☁️ Hosting
 - **Frontend**: Vercel
@@ -56,12 +56,12 @@ The Alumni Connect Portal addresses this need by offering a space for alumni and
 | 📇 Alumni Directory | Searchable list of verified alumni profiles 
 | 🔍 Search & Filter | Filter alumni by batch, branch, job title, or location
 | 👤 Profile Pages | Editable personal and professional profiles for each user
-| 📝 Community Feed | Forum for posts, discussions, and networking 
+| 📝 Community Feed | Forum for posts, discussions, and networking. Toxic posts are detected and blocked automatically.
 | 🏷️ Sorting & Tagging | Sort by graduation year, profession, etc.
 | 📱 Mobile Responsive | Optimized for all screen sizes
 | 💬 Private Messaging | Secure 1:1 messaging system between users 
 | 🏆 Achievement Section | Showcase milestones, recognitions, awards
-
+| 🤖 Chatbot Integration	| Chatbot activated with @chatbot "message" via Socket.IO using Flask + Groq.
 ---
 
 ## 📁 Project Structure
@@ -69,16 +69,20 @@ The Alumni Connect Portal addresses this need by offering a space for alumni and
 ```bash
 AlumniVerse/
 │
-├── frontend/           # Next.js + TypeScript client app
+├── frontend/             # Next.js + TypeScript client app
 │   ├── pages/
 │   ├── components/
 │   └── styles/
 │
-├── backend/            # Node.js + Express server
+├── server/               # Node.js + Express backend
 │   ├── controllers/
 │   ├── routes/
 │   ├── models/
 │   └── config/
+│
+├── flask-server/         # Flask chatbot microservice
+│   ├── flask_backend.py
+│   └── requirements.txt
 │
 └── README.md
 ```
@@ -128,6 +132,10 @@ npm install
 # Backend
 cd ../server
 npm install
+
+# Flask
+cd ../flask-server
+pip install -r requirements.txt
 ```
 
 ### 🏃 Running the Project
@@ -137,7 +145,13 @@ Start the backend server:
 cd server
 npm start
 ```
-
+Start the Flask server:
+```bash
+Copy
+Edit
+cd ../flask-server
+python flask_backend.py
+```
 Start the frontend dev server:
 ```bash
 cd ../frontend
