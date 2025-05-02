@@ -8,7 +8,8 @@ The **Alumni Connect Portal** is a full-stack web application designed to bridge
 ## 🌐 Live Demo
 
 - **Frontend**: [Hosted on Vercel](https://alumni-verse-two.vercel.app/)
-- **Backend**: [Hosted on Render (API-based access)](https://alumniverse.onrender.com)
+- **Backend (Node.js)**: [Hosted on Render (API-based access)](https://alumniverse.onrender.com)
+- **Backend (Flask)**: [Hosted on Render (API-based access)](https://alumniverse-flaskbackend.onrender.com)
 
 ---
 
@@ -37,6 +38,9 @@ The Alumni Connect Portal addresses this need by offering a space for alumni and
 - MongoDB (via Mongoose)
 - Socket.IO (for real-time messaging)
 - Cloudinary (for file and image uploads)
+- Flask
+- LangChain
+- Groq
 
 ### ☁️ Hosting
 - **Frontend**: Vercel
